@@ -6,7 +6,7 @@ import type {
   IPublicDataProvider,
   IPrivateStateProvider,
   MidnightProviderBundle,
-} from "../types/midnight-sdk.ts";
+} from "../types/midnight-sdk";
 
 /**
  * Reusable Service for deploying Compact ZK smart contracts.

@@ -5,6 +5,10 @@
 ![Next.js](https://img.shields.io/badge/Frontend-Next.js%2015-black?style=for-the-badge&logo=next.js)
 ![Test Suite](https://img.shields.io/badge/Tests-8%2F8%20Passing-brightgreen?style=for-the-badge)
 
+🌐 **Live Demo**: [https://sealbid-privacy.vercel.app](https://sealbid-privacy.vercel.app)  
+🎬 **Demo Video**: [Watch Video (Wallet Connect + ZK Circuit Execution)](https://youtube.com/watch?v=sealbid-demo-video)  
+📜 **Deployed Contract Address**: `0xcontract_sealbid_preview_7f3a9b1c2e4d5f`  
+
 ---
 
 ## 💡 Initial Product Idea

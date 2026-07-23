@@ -1,4 +1,4 @@
-import { ContractDeploymentService } from "../midnight/services/contract-deployment-service.ts";
+import { ContractDeploymentService } from "../midnight/services/contract-deployment-service";
 import { SEALBID_CIRCUITS_METADATA, CONTRACT_BYTECODE_HASH } from "../contracts/managed/sealbid/index.js";
 
 /**
