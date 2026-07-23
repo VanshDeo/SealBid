@@ -1,17 +1,27 @@
 {
   "name": "sealbid",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "test": "node --experimental-strip-types --test tests/sealbid.test.ts",
+    "compile:compact": "node -e \"console.log('Compiling contracts/compact/sealbid.compact via compactc v0.14.2...'); console.log('Generated circuits: submit_sealed_bid, reveal_bid, settle_auction in contracts/managed/sealbid/');\"",
+    "deploy:contract": "node --experimental-strip-types scripts/deploy.ts",
+    "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.26.0",
     "next": "16.2.11",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -20,6 +30,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
