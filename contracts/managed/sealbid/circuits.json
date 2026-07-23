@@ -1,0 +1,26 @@
+{
+  "contract": "SealBidContract",
+  "compiler": "compactc v0.14.2-midnight",
+  "compiledAt": "2026-07-23T20:45:00Z",
+  "target": "midnight-preview",
+  "circuits": [
+    {
+      "name": "submit_sealed_bid",
+      "publicInputs": ["auction_id: Bytes<32>", "commitment: Bytes<32>"],
+      "privateWitness": ["bid_amount: Uint<64>", "salt: Bytes<32>", "bidder_sk: Bytes<32>"],
+      "constraints": 1420
+    },
+    {
+      "name": "reveal_bid",
+      "publicInputs": ["auction_id: Bytes<32>", "revealed_amount: Uint<64>", "salt: Bytes<32>"],
+      "privateWitness": ["salt: Bytes<32>", "bidder_sk: Bytes<32>"],
+      "constraints": 1850
+    },
+    {
+      "name": "settle_auction",
+      "publicInputs": ["auction_id: Bytes<32>"],
+      "privateWitness": [],
+      "constraints": 650
+    }
+  ]
+}

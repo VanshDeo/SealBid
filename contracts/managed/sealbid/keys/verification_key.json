@@ -1,0 +1,30 @@
+{
+  "protocol": "groth16",
+  "curve": "bn254",
+  "circuits": {
+    "submit_sealed_bid": {
+      "vk_alpha_1": ["0x1a2b3c4d5e6f", "0x7a8b9c0d1e2f"],
+      "vk_beta_2": [
+        ["0x3c4d5e", "0x6f7a8b"],
+        ["0x0d1e2f", "0x3a4b5c"]
+      ],
+      "hash": "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b"
+    },
+    "reveal_bid": {
+      "vk_alpha_1": ["0x2b3c4d5e6f7a", "0x8b9c0d1e2f3a"],
+      "vk_beta_2": [
+        ["0x4d5e6f", "0x7a8b9c"],
+        ["0x1e2f3a", "0x4b5c6d"]
+      ],
+      "hash": "0x2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c"
+    },
+    "settle_auction": {
+      "vk_alpha_1": ["0x3c4d5e6f7a8b", "0x9c0d1e2f3a4b"],
+      "vk_beta_2": [
+        ["0x5e6f7a", "0x8b9c0d"],
+        ["0x2f3a4b", "0x5c6d7e"]
+      ],
+      "hash": "0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d"
+    }
+  }
+}

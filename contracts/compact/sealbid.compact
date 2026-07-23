@@ -1,0 +1,48 @@
+// Compact ZK Smart Contract Architecture Stub for SealBid
+// Language: Compact (Midnight ZK Smart Contract Language)
+
+module SealBidContract {
+    // Ledger state fields representing confidential auction parameters
+    export ledger state: {
+        auction_id: Bytes<32>,
+        seller_pk: Bytes<32>,
+        reserve_price: Uint<64>,
+        bidding_deadline: Uint<64>,
+        reveal_deadline: Uint<64>,
+        highest_commitment: Bytes<32>,
+        is_settled: Boolean
+    };
+
+    // Private witness inputs provided by bidder (never revealed on-chain)
+    export witness private_bid_input: {
+        bid_amount: Uint<64>,
+        salt: Bytes<32>,
+        bidder_sk: Bytes<32>
+    };
+
+    // Exported circuit entry point for committing a sealed bid
+    export circuit submit_sealed_bid(
+        auction_id: Bytes<32>,
+        commitment: Bytes<32>
+    ): Boolean {
+        // ZK Proof requirement: Verify bid_amount >= reserve_price without revealing bid_amount
+        return true;
+    }
+
+    // Exported circuit entry point for revealing a sealed bid post-deadline
+    export circuit reveal_bid(
+        auction_id: Bytes<32>,
+        revealed_amount: Uint<64>,
+        salt: Bytes<32>
+    ): Boolean {
+        // ZK Proof requirement: Prove commitment == hash(revealed_amount, salt)
+        return true;
+    }
+
+    // Exported circuit entry point for auction finalization
+    export circuit settle_auction(
+        auction_id: Bytes<32>
+    ): Boolean {
+        return true;
+    }
+}
