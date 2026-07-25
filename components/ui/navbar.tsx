@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { WalletConnectButton } from "@/components/midnight/wallet-connect-button";
+import { UserProfileBadge } from "@/components/auth/user-profile-badge";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -11,8 +12,12 @@ export function Navbar() {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/auctions", label: "Auctions" },
+    { href: "/procurement", label: "Procurements" },
     { href: "/my-bids", label: "My Sealed Bids" },
+    { href: "/vendor/profile", label: "Vendor Portal" },
+    { href: "/auth", label: "Auth Hub" },
   ];
+
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-800/80 bg-gray-950/80 backdrop-blur-xl">
@@ -35,7 +40,8 @@ export function Navbar() {
         {/* Navigation Links */}
         <nav className="hidden items-center space-x-1 md:flex">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive =
+              pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}
@@ -53,8 +59,9 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Right Section: Wallet Connect */}
+        {/* Right Section: Role Badge & Wallet Connect */}
         <div className="flex items-center space-x-3">
+          <UserProfileBadge />
           <WalletConnectButton />
         </div>
       </div>

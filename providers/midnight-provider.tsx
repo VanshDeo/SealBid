@@ -46,15 +46,14 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     setWallet((prev) => ({ ...prev, isConnecting: true, error: null }));
     try {
       const res = await midnightWalletAdapter.connect();
-      const balance = await midnightWalletAdapter.getBalance();
 
       setWallet({
         isConnected: true,
         isConnecting: false,
         address: res.address,
         coinPublicKey: res.coinPublicKey,
-        balance,
-        networkId: midnightClient.getNetworkConfig().networkId,
+        balance: res.balance,
+        networkId: res.networkId || midnightClient.getNetworkConfig().networkId,
         error: null,
       });
     } catch (err: unknown) {

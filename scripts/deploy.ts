@@ -1,5 +1,8 @@
 import { ContractDeploymentService } from "../midnight/services/contract-deployment-service";
-import { SEALBID_CIRCUITS_METADATA, CONTRACT_BYTECODE_HASH } from "../contracts/managed/sealbid/index.js";
+import {
+  SEALBID_CIRCUITS_METADATA,
+  CONTRACT_BYTECODE_HASH,
+} from "../contracts/managed/sealbid/index.js";
 
 /**
  * Deployment Script for SealBid Compact ZK Smart Contract
@@ -14,12 +17,15 @@ async function main() {
   console.log("==================================================");
 
   console.log("\n[1/4] Verifying Midnight Node and Indexer Connections...");
-  const nodeUrl = process.env.NEXT_PUBLIC_MIDNIGHT_NODE_URL || "https://rpc.preview.midnight.network";
+  const nodeUrl =
+    process.env.NEXT_PUBLIC_MIDNIGHT_NODE_URL || "https://rpc.preview.midnight.network";
   console.log(` ✔ Node URL: ${nodeUrl}`);
 
   console.log("\n[2/4] Loading Managed Circuits & Verification Keys...");
   SEALBID_CIRCUITS_METADATA.circuits.forEach((circuit) => {
-    console.log(` ✔ Loaded Circuit: ${circuit.name} (${circuit.inputsCount} inputs, ${circuit.witnessCount} witnesses)`);
+    console.log(
+      ` ✔ Loaded Circuit: ${circuit.name} (${circuit.inputsCount} inputs, ${circuit.witnessCount} witnesses)`
+    );
   });
 
   console.log("\n[3/4] Initializing Ledger State & Constructor Proof...");

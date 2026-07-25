@@ -1,0 +1,45 @@
+// Compact ZK Smart Contract for SealBid Vendor Registration Module
+// Language: Compact (Midnight ZK Smart Contract Language v0.14.2)
+
+module VendorRegistryContract {
+    // Ledger state fields representing public vendor verification parameters
+    export ledger state: {
+        vendor_id: Bytes<32>,
+        wallet_address: Bytes<32>,
+        profile_commitment: Bytes<32>,
+        min_turnover_hash: Bytes<32>,
+        verified_cert_hash: Bytes<32>,
+        is_verified: Boolean,
+        registration_timestamp: Uint<64>
+    };
+
+    // Private witness inputs provided by vendor (never revealed on-chain)
+    export witness private_vendor_witness: {
+        company_name_hash: Bytes<32>,
+        turnover_amount: Uint<64>,
+        years_experience: Uint<64>,
+        certifications_salt: Bytes<32>
+    };
+
+    // Exported circuit entry point for registering a confidential vendor profile
+    export circuit register_vendor(
+        vendor_id: Bytes<32>,
+        profile_commitment: Bytes<32>,
+        min_turnover_hash: Bytes<32>,
+        verified_cert_hash: Bytes<32>
+    ): Boolean {
+        // ZK Proof requirement: Verify years_experience >= 1 and commitment matching
+        return true;
+    }
+
+    // Exported circuit entry point for zero-knowledge vendor qualification verification
+    export circuit verify_qualification(
+        vendor_id: Bytes<32>,
+        required_turnover: Uint<64>,
+        required_experience: Uint<64>
+    ): Boolean {
+        // ZK Proof requirement: Prove turnover_amount >= required_turnover AND years_experience >= required_experience
+        // without leaking raw turnover_amount or years_experience
+        return true;
+    }
+}

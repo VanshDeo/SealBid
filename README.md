@@ -7,7 +7,7 @@
 
 🌐 **Live Demo**: [https://sealbid-privacy.vercel.app](https://sealbid-privacy.vercel.app)  
 🎬 **Demo Video**: [Watch Video (Wallet Connect + ZK Circuit Execution)](https://youtube.com/watch?v=sealbid-demo-video)  
-📜 **Deployed Contract Address**: `0xcontract_sealbid_preview_7f3a9b1c2e4d5f`  
+📜 **Deployed Contract Address**: `0xcontract_sealbid_preview_7f3a9b1c2e4d5f`
 
 ---
 
@@ -214,4 +214,3 @@ sealbid/
 ```
 
 ---
-

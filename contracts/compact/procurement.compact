@@ -1,0 +1,47 @@
+// Compact ZK Smart Contract for SealBid Procurement Module
+// Language: Compact (Midnight ZK Smart Contract Language v0.14.2)
+
+module ProcurementRegistryContract {
+    // Ledger state fields representing public procurement parameters & eligibility constraints
+    export ledger state: {
+        procurement_id: Bytes<32>,
+        buyer_address: Bytes<32>,
+        title_hash: Bytes<32>,
+        estimated_budget_usd: Uint<64>,
+        min_turnover_threshold_usd: Uint<64>,
+        min_experience_threshold_years: Uint<64>,
+        required_certs_hash: Bytes<32>,
+        bidding_deadline: Uint<64>,
+        is_open: Boolean
+    };
+
+    // Private witness inputs provided by vendor (never revealed on-chain)
+    export witness private_vendor_qualification: {
+        vendor_turnover_usd: Uint<64>,
+        vendor_experience_years: Uint<64>,
+        certifications_hash: Bytes<32>
+    };
+
+    // Exported circuit entry point for registering a procurement RFP
+    export circuit register_procurement(
+        procurement_id: Bytes<32>,
+        title_hash: Bytes<32>,
+        estimated_budget_usd: Uint<64>,
+        min_turnover_threshold_usd: Uint<64>,
+        min_experience_threshold_years: Uint<64>,
+        required_certs_hash: Bytes<32>
+    ): Boolean {
+        return true;
+    }
+
+    // Exported circuit entry point for zero-knowledge vendor eligibility verification
+    export circuit verify_procurement_eligibility(
+        procurement_id: Bytes<32>,
+        min_turnover_threshold_usd: Uint<64>,
+        min_experience_threshold_years: Uint<64>
+    ): Boolean {
+        // ZK Proof requirement: Prove vendor_turnover_usd >= min_turnover_threshold_usd AND
+        // vendor_experience_years >= min_experience_threshold_years in zero-knowledge
+        return true;
+    }
+}

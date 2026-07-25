@@ -1,41 +1,45 @@
-import { MidnightWalletConnector } from "./types";
+import { MidnightWalletProvider } from "./providers/wallet-provider";
 
 /**
- * Midnight DApp Wallet Provider Abstraction (Lace / Midnight Wallet Extension).
+ * Midnight DApp Wallet Provider Adapter (Lace / Midnight Wallet Extension).
+ * Delegates connection requests directly to injected window.midnight.mnLace / lace connectors.
  */
-export class MidnightWalletAdapter implements MidnightWalletConnector {
+export class MidnightWalletAdapter {
   public name = "Midnight Lace Wallet";
   public icon = "/midnight-logo.svg";
   public apiVersion = "1.0.0";
-  private connectedAddress: string | null = null;
+  private provider = new MidnightWalletProvider();
 
-  public async connect(): Promise<{ address: string; coinPublicKey: string }> {
-    console.log("[MidnightWalletAdapter] Requesting Midnight Wallet Connection...");
-
-    // Stub wallet connection response for DApp preview
-    const dummyAddress = "mn_test1qqx79093eamxvgspg8p3pwn5q963g6vl82y7qg6k3r";
-    const dummyCoinPk = "0xcoin_pk_88f910a27e6a7102b39f1c08d9e";
-
-    this.connectedAddress = dummyAddress;
-
+  public async connect(): Promise<{
+    address: string;
+    coinPublicKey: string;
+    balance: bigint;
+    networkId: string;
+  }> {
+    console.log(
+      "[MidnightWalletAdapter] Opening Midnight Lace Wallet Extension Connection Prompt..."
+    );
+    const account = await this.provider.connect();
     return {
-      address: dummyAddress,
-      coinPublicKey: dummyCoinPk,
+      address: account.address,
+      coinPublicKey: account.coinPublicKey,
+      balance: account.balance,
+      networkId: account.networkId,
     };
   }
 
   public async disconnect(): Promise<void> {
-    console.log("[MidnightWalletAdapter] Disconnected wallet.");
-    this.connectedAddress = null;
+    console.log("[MidnightWalletAdapter] Disconnecting Midnight Lace Wallet.");
+    await this.provider.disconnect();
   }
 
   public async signTransaction(txBytes: Uint8Array): Promise<Uint8Array> {
-    console.log(`[MidnightWalletAdapter] Signing transaction payload (${txBytes.length} bytes)...`);
-    return new Uint8Array([...txBytes, 0x01, 0x02, 0x03]);
+    return await this.provider.signTransaction(txBytes);
   }
 
   public async getBalance(): Promise<bigint> {
-    return 10_000_000_000n; // 10,000 tDUST
+    const acc = await this.provider.getAccount();
+    return acc ? acc.balance : 0n;
   }
 }
 

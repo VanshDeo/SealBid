@@ -76,11 +76,11 @@ export function useSealedBid() {
 
       await encryptedBidStorage.saveEncryptedBid(bidRecord);
 
-      // Step 4: Relay Commitment to On-chain Ledger
+      // Step 4: Relay Commitment & Execute Circuit via Midnight Wallet
       setProvingState({
         status: PROOF_STATUS.SUBMITTED,
-        progress: 100,
-        message: "Submitting commitment hash to Midnight transaction relay...",
+        progress: 95,
+        message: "Submitting circuit transaction via Midnight Lace Wallet...",
         proofData: zkProof.proofBytes,
         error: null,
       });
@@ -91,6 +91,14 @@ export function useSealedBid() {
         commitmentHash,
         encryptedAmount: bidRecord.encryptedAmount,
         proofData: zkProof.proofBytes,
+      });
+
+      setProvingState({
+        status: PROOF_STATUS.SUBMITTED,
+        progress: 100,
+        message: `Transaction confirmed on Midnight network! Tx: ${response.transactionHash}`,
+        proofData: zkProof.proofBytes,
+        error: null,
       });
 
       return response;
