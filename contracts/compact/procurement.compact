@@ -34,14 +34,45 @@ module ProcurementRegistryContract {
         return true;
     }
 
-    // Exported circuit entry point for zero-knowledge vendor eligibility verification
+    // Exported circuit entry point for Stage 1: Zero-knowledge vendor eligibility verification (Anonymous)
     export circuit verify_procurement_eligibility(
         procurement_id: Bytes<32>,
         min_turnover_threshold_usd: Uint<64>,
         min_experience_threshold_years: Uint<64>
     ): Boolean {
         // ZK Proof requirement: Prove vendor_turnover_usd >= min_turnover_threshold_usd AND
-        // vendor_experience_years >= min_experience_threshold_years in zero-knowledge
+        // vendor_experience_years >= min_experience_threshold_years in zero-knowledge without revealing identity
+        return true;
+    }
+
+    // Exported circuit entry point for Stage 2: Confidential technical proposal submission
+    export circuit submit_technical_proposal_hash(
+        procurement_id: Bytes<32>,
+        anonymous_bidder_id: Bytes<32>,
+        proposal_commitment_hash: Bytes<32>
+    ): Boolean {
+        // ZK Proof requirement: Verify proposal payload hash commitment linked to anonymous bidder ID
+        return true;
+    }
+
+    // Exported circuit entry point for Stage 3: Encrypted commercial bid commitment submission
+    export circuit submit_commercial_bid_commitment(
+        procurement_id: Bytes<32>,
+        anonymous_bidder_id: Bytes<32>,
+        sealed_bid_commitment: Bytes<32>
+    ): Boolean {
+        // ZK Proof requirement: Verify sealed commercial pricing commitment for eligible bidder
+        return true;
+    }
+
+    // Exported circuit entry point for Stage 4: Selective legal documentation reveal for winning supplier
+    export circuit reveal_winner_legal_proof(
+        procurement_id: Bytes<32>,
+        winning_anonymous_bidder_id: Bytes<32>,
+        legal_doc_hash_commitment: Bytes<32>
+    ): Boolean {
+        // ZK Proof requirement: Prove winning bidder authorization for selective legal disclosure to buyer
         return true;
     }
 }
+

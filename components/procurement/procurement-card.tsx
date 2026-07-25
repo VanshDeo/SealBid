@@ -143,9 +143,9 @@ export function ProcurementCard({
           <Button type="button" variant="outline" size="sm" isLoading={isVerifying} onClick={handleTestEligibility}>
             <Zap className="h-3.5 w-3.5" /> Test ZK Eligibility
           </Button>
-          <Link href="/my-bids">
+          <Link href={`/procurement/${rfp.id}`}>
             <Button variant="primary" size="sm">
-              Submit Sealed Bid <ArrowRight className="h-3.5 w-3.5" />
+              Enter Progressive Tender <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </Link>
         </div>

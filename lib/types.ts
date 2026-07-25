@@ -210,7 +210,15 @@ export interface ProcurementDeadlines {
 export type BiddingStage =
   | "SINGLE_STAGE_SEALED"
   | "TWO_STAGE_QUALIFICATION"
+  | "PROGRESSIVE_CONFIDENTIAL"
   | "DYNAMIC_AUCTION";
+
+export type ProgressiveStage =
+  | "STAGE_1_ELIGIBILITY"
+  | "STAGE_2_TECHNICAL"
+  | "STAGE_3_COMMERCIAL"
+  | "STAGE_4_LEGAL_REVEAL"
+  | "COMPLETED";
 
 export interface ContractTerms {
   paymentTerms: string;
@@ -228,6 +236,71 @@ export interface CompactEligibilityRules {
   privateWitnesses: string[];
 }
 
+export interface Stage1EligibilitySubmission {
+  anonymousBidderId: string; // Pseudonym hash (vendor identity concealed)
+  proofHash: string;
+  isEligible: boolean;
+  verifiedAt: string;
+  details: {
+    turnoverSatisfied: boolean;
+    experienceSatisfied: boolean;
+  };
+}
+
+export interface Stage2TechnicalSubmission {
+  submissionId: string;
+  anonymousBidderId: string;
+  technicalSpecs: string;
+  methodology: string;
+  deliveryTimelineDays: number;
+  equipmentSummary: string;
+  proposalHash: string;
+  technicalScore?: number;
+  status: "PENDING" | "PASSED" | "REJECTED";
+  submittedAt: string;
+  evaluatedAt?: string;
+}
+
+export interface Stage3CommercialSubmission {
+  bidId: string;
+  anonymousBidderId: string;
+  bidCommitmentHash: string;
+  encryptedBidPayload: string;
+  bidAmountUsd: number;
+  commercialScore?: number;
+  isWinningBid?: boolean;
+  submittedAt: string;
+}
+
+export interface Stage4LegalReveal {
+  winningAnonymousBidderId: string;
+  winningVendorWalletAddress: string;
+  revealedLegalDoc: {
+    companyName: string;
+    registrationNumber: string;
+    taxId: string;
+    country: string;
+    businessAddress: string;
+    contactPerson: string;
+    email: string;
+    bankAccountIBAN: string;
+    complianceCertificates: string[];
+  };
+  unlockedByBuyer: string;
+  revealedAt: string;
+}
+
+export interface ProgressiveProcurementState {
+  procurementId: string;
+  currentStage: ProgressiveStage;
+  stage1Eligibility: Stage1EligibilitySubmission[];
+  stage2Technical: Stage2TechnicalSubmission[];
+  stage3Commercial: Stage3CommercialSubmission[];
+  stage4LegalReveal?: Stage4LegalReveal;
+  winningAnonymousBidderId?: string;
+  updatedAt: string;
+}
+
 export interface ProcurementRfp {
   id: string;
   title: string;
@@ -243,5 +316,44 @@ export interface ProcurementRfp {
   compactRules: CompactEligibilityRules;
   status: "DRAFT" | "OPEN" | "QUALIFYING" | "EVALUATING" | "CLOSED";
   createdAt: string;
+  progressiveState?: ProgressiveProcurementState;
 }
+
+export interface ConfidentialEligibilityCheckInput {
+  procurementId: string;
+  vendorId: string;
+  requiredTurnoverUsd: number;
+  requiredExperienceYears: number;
+  requiredCertifications?: string[];
+  // Private witness document inputs (never revealed to buyer)
+  privateWitness: {
+    actualTurnoverUsd: number;
+    actualExperienceYears: number;
+    auditedReportHash?: string;
+    certificationsHash?: string;
+    identitySalt?: string;
+  };
+}
+
+export interface ConfidentialEligibilityProofPackage {
+  procurementId: string;
+  vendorId: string;
+  // Binary pass/fail qualification output
+  isQualified: boolean;
+  // Proof validity metadata for buyer
+  proofStatus: ProofStatus;
+  proofHash: string;
+  verificationKeyHash: string;
+  predicateHash: string;
+  circuitName: "verify_procurement_eligibility";
+  // Zero-knowledge rule satisfaction breakdown (no document or raw financial data)
+  criteriaBreakdown: {
+    turnoverSatisfied: boolean;
+    experienceSatisfied: boolean;
+    certificationsSatisfied: boolean;
+  };
+  verifiedAt: string;
+}
+
+
 

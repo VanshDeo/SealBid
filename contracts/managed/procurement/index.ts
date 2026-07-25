@@ -56,8 +56,36 @@ export const PROCUREMENT_CIRCUITS_METADATA = {
       provingKeyHash: "0xa2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1",
       verificationKeyHash: "0x7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c",
     },
+    {
+      name: "submit_technical_proposal_hash",
+      description:
+        "Stage 2 ZK circuit: Submits encrypted technical proposal hash commitment linked to anonymous bidder ID",
+      inputsCount: 3,
+      witnessCount: 1,
+      provingKeyHash: "0xb3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2",
+      verificationKeyHash: "0x8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d",
+    },
+    {
+      name: "submit_commercial_bid_commitment",
+      description:
+        "Stage 3 ZK circuit: Submits sealed commercial pricing commitment for technically qualified bidders",
+      inputsCount: 3,
+      witnessCount: 2,
+      provingKeyHash: "0xc4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3",
+      verificationKeyHash: "0x9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e",
+    },
+    {
+      name: "reveal_winner_legal_proof",
+      description:
+        "Stage 4 ZK circuit: Selective legal document disclosure for winning supplier to buyer",
+      inputsCount: 3,
+      witnessCount: 1,
+      provingKeyHash: "0xd5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4",
+      verificationKeyHash: "0xa0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9",
+    },
   ],
 };
+
 
 export const PROCUREMENT_CONTRACT_BYTECODE_HASH =
   "0xb8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9";

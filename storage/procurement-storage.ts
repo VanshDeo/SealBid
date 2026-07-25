@@ -1,5 +1,12 @@
 import { STORAGE_KEYS } from "@/lib/constants";
-import { ProcurementRfp } from "@/lib/types";
+import {
+  ProcurementRfp,
+  ProgressiveProcurementState,
+  Stage1EligibilitySubmission,
+  Stage2TechnicalSubmission,
+  Stage3CommercialSubmission,
+  Stage4LegalReveal,
+} from "@/lib/types";
 
 // Default initial mock procurements showcase
 export const INITIAL_PROCUREMENTS: ProcurementRfp[] = [
@@ -29,7 +36,7 @@ export const INITIAL_PROCUREMENTS: ProcurementRfp[] = [
       revealDeadline: new Date(Date.now() + 86400 * 12 * 1000).toISOString(),
       awardDate: new Date(Date.now() + 86400 * 15 * 1000).toISOString(),
     },
-    biddingStage: "TWO_STAGE_QUALIFICATION",
+    biddingStage: "PROGRESSIVE_CONFIDENTIAL",
     contractTerms: {
       paymentTerms: "30% Advance, 70% Net 30 Post-Delivery",
       deliveryTimelineDays: 90,
@@ -74,7 +81,7 @@ module ProcurementEligibilityCircuit { ... }`,
       revealDeadline: new Date(Date.now() + 86400 * 8 * 1000).toISOString(),
       awardDate: new Date(Date.now() + 86400 * 10 * 1000).toISOString(),
     },
-    biddingStage: "SINGLE_STAGE_SEALED",
+    biddingStage: "PROGRESSIVE_CONFIDENTIAL",
     contractTerms: {
       paymentTerms: "Net 60 Days",
       deliveryTimelineDays: 45,
@@ -94,6 +101,8 @@ module ProcurementEligibilityCircuit { ... }`,
     createdAt: new Date().toISOString(),
   },
 ];
+
+const IN_MEMORY_PROGRESSIVE_STORE: Record<string, ProgressiveProcurementState> = {};
 
 export class ProcurementStorage {
   /**
@@ -135,4 +144,188 @@ export class ProcurementStorage {
     const list = this.getProcurements();
     return list.find((p) => p.id === id) || null;
   }
+
+  /**
+   * Retrieves progressive procurement stage state for a given procurement ID.
+   */
+  public static getProgressiveState(procurementId: string): ProgressiveProcurementState {
+    const defaultState: ProgressiveProcurementState = {
+      procurementId,
+      currentStage: "STAGE_1_ELIGIBILITY",
+      stage1Eligibility: [],
+      stage2Technical: [],
+      stage3Commercial: [],
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (typeof window === "undefined") {
+      return IN_MEMORY_PROGRESSIVE_STORE[procurementId] || defaultState;
+    }
+
+    try {
+      const key = `sealbid_prog_state_${procurementId}`;
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        return IN_MEMORY_PROGRESSIVE_STORE[procurementId] || defaultState;
+      }
+      return JSON.parse(raw) as ProgressiveProcurementState;
+    } catch {
+      return IN_MEMORY_PROGRESSIVE_STORE[procurementId] || defaultState;
+    }
+  }
+
+  /**
+   * Saves or updates progressive procurement state.
+   */
+  public static saveProgressiveState(state: ProgressiveProcurementState): boolean {
+    IN_MEMORY_PROGRESSIVE_STORE[state.procurementId] = state;
+    if (typeof window !== "undefined") {
+      try {
+        const key = `sealbid_prog_state_${state.procurementId}`;
+        localStorage.setItem(key, JSON.stringify(state));
+      } catch (err) {
+        console.error("[ProcurementStorage] Failed to persist progressive state:", err);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Adds or updates Stage 1 Eligibility Verification.
+   */
+  public static addStage1Submission(
+    procurementId: string,
+    submission: Stage1EligibilitySubmission
+  ): ProgressiveProcurementState {
+    const state = this.getProgressiveState(procurementId);
+    const existingFiltered = state.stage1Eligibility.filter(
+      (s) => s.anonymousBidderId !== submission.anonymousBidderId
+    );
+    const updatedState: ProgressiveProcurementState = {
+      ...state,
+      stage1Eligibility: [submission, ...existingFiltered],
+      updatedAt: new Date().toISOString(),
+    };
+    this.saveProgressiveState(updatedState);
+    return updatedState;
+  }
+
+  /**
+   * Adds or updates Stage 2 Technical Proposal.
+   */
+  public static addStage2Submission(
+    procurementId: string,
+    submission: Stage2TechnicalSubmission
+  ): ProgressiveProcurementState {
+    const state = this.getProgressiveState(procurementId);
+    const existingFiltered = state.stage2Technical.filter(
+      (s) => s.anonymousBidderId !== submission.anonymousBidderId
+    );
+    const updatedState: ProgressiveProcurementState = {
+      ...state,
+      currentStage: "STAGE_2_TECHNICAL",
+      stage2Technical: [submission, ...existingFiltered],
+      updatedAt: new Date().toISOString(),
+    };
+    this.saveProgressiveState(updatedState);
+    return updatedState;
+  }
+
+  /**
+   * Evaluates Stage 2 Technical Proposal (Passed / Rejected).
+   */
+  public static updateStage2TechnicalStatus(
+    procurementId: string,
+    anonymousBidderId: string,
+    status: "PASSED" | "REJECTED",
+    technicalScore?: number
+  ): ProgressiveProcurementState {
+    const state = this.getProgressiveState(procurementId);
+    const updatedList = state.stage2Technical.map((item) => {
+      if (item.anonymousBidderId === anonymousBidderId) {
+        return {
+          ...item,
+          status,
+          technicalScore: technicalScore ?? item.technicalScore,
+          evaluatedAt: new Date().toISOString(),
+        };
+      }
+      return item;
+    });
+
+    const anyPassed = updatedList.some((i) => i.status === "PASSED");
+    const updatedState: ProgressiveProcurementState = {
+      ...state,
+      stage2Technical: updatedList,
+      currentStage: anyPassed ? "STAGE_3_COMMERCIAL" : state.currentStage,
+      updatedAt: new Date().toISOString(),
+    };
+    this.saveProgressiveState(updatedState);
+    return updatedState;
+  }
+
+  /**
+   * Adds Stage 3 Commercial Sealed Bid.
+   */
+  public static addStage3Submission(
+    procurementId: string,
+    submission: Stage3CommercialSubmission
+  ): ProgressiveProcurementState {
+    const state = this.getProgressiveState(procurementId);
+    const existingFiltered = state.stage3Commercial.filter(
+      (s) => s.anonymousBidderId !== submission.anonymousBidderId
+    );
+    const updatedState: ProgressiveProcurementState = {
+      ...state,
+      currentStage: "STAGE_3_COMMERCIAL",
+      stage3Commercial: [submission, ...existingFiltered],
+      updatedAt: new Date().toISOString(),
+    };
+    this.saveProgressiveState(updatedState);
+    return updatedState;
+  }
+
+  /**
+   * Evaluates Stage 3 and selects winning bidder.
+   */
+  public static awardStage3Winner(
+    procurementId: string,
+    winningAnonymousBidderId: string
+  ): ProgressiveProcurementState {
+    const state = this.getProgressiveState(procurementId);
+    const updatedCommercial = state.stage3Commercial.map((item) => ({
+      ...item,
+      isWinningBid: item.anonymousBidderId === winningAnonymousBidderId,
+    }));
+
+    const updatedState: ProgressiveProcurementState = {
+      ...state,
+      stage3Commercial: updatedCommercial,
+      winningAnonymousBidderId,
+      currentStage: "STAGE_4_LEGAL_REVEAL",
+      updatedAt: new Date().toISOString(),
+    };
+    this.saveProgressiveState(updatedState);
+    return updatedState;
+  }
+
+  /**
+   * Saves Stage 4 Selective Legal Reveal (ONLY for winning bidder).
+   */
+  public static saveStage4LegalReveal(
+    procurementId: string,
+    legalReveal: Stage4LegalReveal
+  ): ProgressiveProcurementState {
+    const state = this.getProgressiveState(procurementId);
+    const updatedState: ProgressiveProcurementState = {
+      ...state,
+      stage4LegalReveal: legalReveal,
+      currentStage: "COMPLETED",
+      updatedAt: new Date().toISOString(),
+    };
+    this.saveProgressiveState(updatedState);
+    return updatedState;
+  }
 }
+
