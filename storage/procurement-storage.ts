@@ -273,13 +273,18 @@ export class ProcurementStorage {
     submission: Stage3CommercialSubmission
   ): ProgressiveProcurementState {
     const state = this.getProgressiveState(procurementId);
-    const existingFiltered = state.stage3Commercial.filter(
-      (s) => s.anonymousBidderId !== submission.anonymousBidderId
+    const existing = state.stage3Commercial.find(
+      (s) => s.anonymousBidderId === submission.anonymousBidderId
     );
+    if (existing) {
+      throw new Error(
+        "Smart Contract Violation: Commercial bids are immutable after submission and cannot be modified or overwritten."
+      );
+    }
     const updatedState: ProgressiveProcurementState = {
       ...state,
       currentStage: "STAGE_3_COMMERCIAL",
-      stage3Commercial: [submission, ...existingFiltered],
+      stage3Commercial: [submission, ...state.stage3Commercial],
       updatedAt: new Date().toISOString(),
     };
     this.saveProgressiveState(updatedState);
@@ -287,11 +292,12 @@ export class ProcurementStorage {
   }
 
   /**
-   * Evaluates Stage 3 and selects winning bidder.
+   * Evaluates Stage 3 and selects winning bidder with confidential Compact ZK audit trail.
    */
   public static awardStage3Winner(
     procurementId: string,
-    winningAnonymousBidderId: string
+    winningAnonymousBidderId: string,
+    auditTrail?: import("@/lib/types").ConfidentialWinnerAuditTrail
   ): ProgressiveProcurementState {
     const state = this.getProgressiveState(procurementId);
     const updatedCommercial = state.stage3Commercial.map((item) => ({
@@ -303,6 +309,7 @@ export class ProcurementStorage {
       ...state,
       stage3Commercial: updatedCommercial,
       winningAnonymousBidderId,
+      winnerAuditTrail: auditTrail || state.winnerAuditTrail,
       currentStage: "STAGE_4_LEGAL_REVEAL",
       updatedAt: new Date().toISOString(),
     };

@@ -290,6 +290,20 @@ export interface Stage4LegalReveal {
   revealedAt: string;
 }
 
+export interface ConfidentialWinnerAuditTrail {
+  procurementId: string;
+  winningAnonymousBidderId: string;
+  evaluationMethod: string;
+  totalBidsEvaluated: number;
+  proofHash: string;
+  verificationKeyHash: string;
+  ruleCommitmentHash: string;
+  fairnessProofSignature: string;
+  timestamp: string;
+  losingBidsPrivacyProtected: boolean;
+  losingBidCount: number;
+}
+
 export interface ProgressiveProcurementState {
   procurementId: string;
   currentStage: ProgressiveStage;
@@ -297,6 +311,7 @@ export interface ProgressiveProcurementState {
   stage2Technical: Stage2TechnicalSubmission[];
   stage3Commercial: Stage3CommercialSubmission[];
   stage4LegalReveal?: Stage4LegalReveal;
+  winnerAuditTrail?: ConfidentialWinnerAuditTrail;
   winningAnonymousBidderId?: string;
   updatedAt: string;
 }

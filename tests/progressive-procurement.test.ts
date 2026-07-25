@@ -20,8 +20,8 @@ describe("SealBid Progressive Procurement Multi-Stage Test Suite", () => {
   const vendor2Wallet = "mn_test1qqvendor_beta_address_002";
 
   describe("1. Managed Contract Circuit Verification for Progressive Procurement", () => {
-    it("should export 5 compiled circuits covering all 4 progressive stages", () => {
-      assert.equal(PROCUREMENT_CIRCUITS_METADATA.circuits.length, 5);
+    it("should export 6 compiled circuits covering all 4 progressive stages", () => {
+      assert.equal(PROCUREMENT_CIRCUITS_METADATA.circuits.length, 6);
 
       const circuitNames = PROCUREMENT_CIRCUITS_METADATA.circuits.map((c) => c.name);
       assert.deepEqual(circuitNames, [
@@ -29,6 +29,7 @@ describe("SealBid Progressive Procurement Multi-Stage Test Suite", () => {
         "verify_procurement_eligibility",
         "submit_technical_proposal_hash",
         "submit_commercial_bid_commitment",
+        "evaluate_winning_bid",
         "reveal_winner_legal_proof",
       ]);
     });
@@ -49,7 +50,8 @@ describe("SealBid Progressive Procurement Multi-Stage Test Suite", () => {
 
       assert.equal(res1.success, true);
       assert.ok(res1.submission);
-      assert.ok(res1.anonymousBidderId?.startsWith("anon_bidder_"));
+      assert.ok(res1.anonymousBidderId);
+      assert.ok(res1.anonymousBidderId.startsWith("anon_bidder_"));
       assert.equal(res1.submission.isEligible, true);
 
       // Crucially: The anonymousBidderId does NOT contain the vendor's wallet address or company name

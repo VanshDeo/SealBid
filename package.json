@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "npx tsx --test tests/sealbid.test.ts tests/auth.test.ts tests/vendor.test.ts tests/procurement.test.ts",
+    "test": "npx tsx --test tests/sealbid.test.ts tests/auth.test.ts tests/vendor.test.ts tests/procurement.test.ts tests/progressive-procurement.test.ts tests/confidential-bidding.test.ts tests/confidential-eligibility.test.ts tests/confidential-winner-selection.test.ts tests/dashboards.test.ts",
     "compile:compact": "node -e \"console.log('Compiling contracts/compact/sealbid.compact via compactc v0.14.2...'); console.log('Generated circuits: submit_sealed_bid, reveal_bid, settle_auction in contracts/managed/sealbid/');\"",
     "deploy:contract": "node --experimental-strip-types scripts/deploy.ts",
     "lint": "eslint",

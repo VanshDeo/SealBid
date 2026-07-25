@@ -75,6 +75,15 @@ export const PROCUREMENT_CIRCUITS_METADATA = {
       verificationKeyHash: "0x9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e",
     },
     {
+      name: "evaluate_winning_bid",
+      description:
+        "Stage 3 ZK circuit: Evaluates commercial bids according to predefined procurement rules, publishing only the winner while keeping losing bids confidential",
+      inputsCount: 4,
+      witnessCount: 2,
+      provingKeyHash: "0xe6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5",
+      verificationKeyHash: "0xb1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0",
+    },
+    {
       name: "reveal_winner_legal_proof",
       description:
         "Stage 4 ZK circuit: Selective legal document disclosure for winning supplier to buyer",

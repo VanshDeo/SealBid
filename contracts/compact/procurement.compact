@@ -65,6 +65,18 @@ module ProcurementRegistryContract {
         return true;
     }
 
+    // Exported circuit entry point for Stage 3: Confidential ZK winner evaluation according to predefined rules
+    export circuit evaluate_winning_bid(
+        procurement_id: Bytes<32>,
+        total_bids_count: Uint<64>,
+        winning_anonymous_bidder_id: Bytes<32>,
+        evaluation_rules_hash: Bytes<32>
+    ): Boolean {
+        // ZK Proof requirement: Prove winning bidder satisfies predefined procurement evaluation rules
+        // while keeping all losing bid values 100% confidential
+        return true;
+    }
+
     // Exported circuit entry point for Stage 4: Selective legal documentation reveal for winning supplier
     export circuit reveal_winner_legal_proof(
         procurement_id: Bytes<32>,

@@ -1,53 +1,64 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { useAuth } from "@/providers/auth-provider";
+import {
+  getAuditorIntegrityReportsAction,
+  verifyAuditorProofAction,
+  AuditorAuditReportItem,
+} from "@/actions/procurement-actions";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Scale,
+  ShieldCheck,
+  FileCheck2,
+  Lock,
+  KeyRound,
+  CheckCircle2,
+  AlertCircle,
+  EyeOff,
+  Cpu,
+} from "lucide-react";
 
 export default function AuditorDashboardPage() {
   const { session } = useAuth();
-  const [verifyingHash, setVerifyingHash] = useState<string | null>(null);
-  const [verificationResult, setVerificationResult] = useState<string | null>(null);
+  const [auditReports, setAuditReports] = useState<AuditorAuditReportItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [verificationNotice, setVerificationNotice] = useState<string | null>(null);
 
   const auditorInfo = session.privateInfo?.role === "auditor" ? session.privateInfo : null;
 
-  const mockAudits = [
-    {
-      id: "bid-proof-001",
-      auctionTitle: "Enterprise GPU Server Cluster",
-      commitmentHash: "0x8f3a9b1c2e4d5f... (SHA-256)",
-      proofStatus: "VERIFIED",
-      circuit: "submit_sealed_bid",
-      timestamp: "2026-07-25 14:30:00 UTC",
-    },
-    {
-      id: "bid-proof-002",
-      auctionTitle: "Commercial Real Estate Lease Token",
-      commitmentHash: "0x4b7c9e1f3a2d5e... (SHA-256)",
-      proofStatus: "VERIFIED",
-      circuit: "submit_sealed_bid",
-      timestamp: "2026-07-25 16:15:22 UTC",
-    },
-    {
-      id: "bid-proof-003",
-      auctionTitle: "Rare Digital Collectible #404",
-      commitmentHash: "0x1d2e3f4a5b6c7d... (SHA-256)",
-      proofStatus: "VERIFIED",
-      circuit: "reveal_bid",
-      timestamp: "2026-07-25 17:00:10 UTC",
-    },
-  ];
+  useEffect(() => {
+    async function loadReports() {
+      try {
+        const res = await getAuditorIntegrityReportsAction();
+        setAuditReports(res.auditReports);
+      } catch (err) {
+        console.error("Failed to load auditor integrity reports:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadReports();
+  }, []);
 
-  const runAuditVerification = (proofId: string) => {
-    setVerifyingHash(proofId);
-    setVerificationResult(null);
-    setTimeout(() => {
-      setVerifyingHash(null);
-      setVerificationResult(
-        `ZK Proof ${proofId} cryptographically verified! Zero-Knowledge circuit predicate (bid >= reserve) holds without disclosing private bid scalar.`
-      );
-    }, 1200);
+  const handleVerifyProof = async (auditId: string) => {
+    setVerifyingId(auditId);
+    setVerificationNotice(null);
+    try {
+      const res = await verifyAuditorProofAction(auditId);
+      if (res.success) {
+        setVerificationNotice(res.message);
+      }
+    } catch (err) {
+      console.error("Verification error:", err);
+    } finally {
+      setVerifyingId(null);
+    }
   };
 
   return (
@@ -57,27 +68,27 @@ export default function AuditorDashboardPage() {
         <div className="flex flex-col gap-4 border-b border-gray-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">
-              <span>⚖️</span> Auditor Zero-Knowledge Compliance Portal
+              <Scale className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Auditor Zero-Knowledge Compliance Portal</span>
             </div>
             <h1 className="text-3xl font-extrabold text-white">
               {auditorInfo?.firmName || session.profile?.displayName || "Independent Audit Partner"}
             </h1>
             <p className="mt-1 text-xs text-gray-400">
-              Verify zero-knowledge proof validity, audit auction commitments, and issue compliance
-              attestations.
+              Verify procurement integrity through zero-knowledge selective disclosure without accessing commercially sensitive financial data or losing bids.
             </p>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="primary" className="glow-primary">
-              + Generate Audit Attestation
+            <Button variant="emerald" className="shadow-lg shadow-emerald-600/25">
+              <FileCheck2 className="h-4 w-4 mr-1.5" /> Issue Compliance Attestation
             </Button>
           </div>
         </div>
 
-        {/* Encrypted Auditor Credentials */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div className="glass-panel space-y-2 rounded-2xl border border-emerald-500/20 p-5">
+        {/* Encrypted Auditor Credentials & Zero-Leakage Guarantee */}
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="glass-panel space-y-2 rounded-2xl border border-emerald-500/20 bg-gray-900/60 p-5 backdrop-blur-xl">
             <span className="block text-xs font-semibold text-gray-400">Audit Accreditation</span>
             <div className="text-sm font-bold text-white">
               {auditorInfo?.accreditationBody || "Midnight ZK Audit Association"}
@@ -87,85 +98,115 @@ export default function AuditorDashboardPage() {
             </div>
           </div>
 
-          <div className="glass-panel space-y-2 rounded-2xl border border-emerald-500/20 p-5">
-            <span className="block text-xs font-semibold text-gray-400">Jurisdiction</span>
+          <div className="glass-panel space-y-2 rounded-2xl border border-cyan-500/20 bg-gray-900/60 p-5 backdrop-blur-xl">
+            <span className="block text-xs font-semibold text-gray-400">Jurisdiction & Scope</span>
             <div className="text-sm font-bold text-white">
               {auditorInfo?.jurisdiction || "Global Decentralized Jurisdiction"}
             </div>
-            <div className="text-[11px] text-gray-400">Multi-Chain Regulatory Scope</div>
+            <div className="text-[11px] text-cyan-300">Compact ZK Smart Contracts</div>
           </div>
 
-          <div className="glass-panel space-y-2 rounded-2xl border border-emerald-500/20 p-5">
-            <span className="block text-xs font-semibold text-gray-400">Audit RSA Public Key</span>
-            <div className="truncate font-mono text-xs text-emerald-300">
-              {auditorInfo?.rsaPublicKey || "0xrsa_pub_auditor_sealbid_88992211"}
+          <div className="glass-panel space-y-2 rounded-2xl border border-purple-500/20 bg-gray-900/60 p-5 backdrop-blur-xl">
+            <span className="block text-xs font-semibold text-gray-400">Selective Disclosure Shield</span>
+            <div className="flex items-center gap-1.5 text-xs font-bold text-purple-300">
+              <EyeOff className="h-4 w-4 text-purple-400" />
+              <span>Zero-Leakage Assurance</span>
             </div>
-            <div className="text-[11px] text-gray-400">Public Verification Target</div>
+            <div className="text-[11px] text-gray-400">No raw financials or unrevealed identities</div>
           </div>
         </div>
 
         {/* Verification Result Banner */}
-        {verificationResult && (
-          <div className="flex items-center justify-between rounded-xl border border-emerald-500/40 bg-emerald-950/80 p-4 font-mono text-xs text-emerald-300">
-            <span>✅ {verificationResult}</span>
+        {verificationNotice && (
+          <div className="flex items-center justify-between rounded-xl border border-emerald-500/40 bg-emerald-950/80 p-4 font-mono text-xs text-emerald-300 shadow-xl">
+            <span className="flex items-center space-x-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>{verificationNotice}</span>
+            </span>
             <button
-              onClick={() => setVerificationResult(null)}
-              className="text-emerald-400 hover:text-white"
+              onClick={() => setVerificationNotice(null)}
+              className="text-emerald-400 hover:text-white font-bold ml-4"
             >
               ✕
             </button>
           </div>
         )}
 
-        {/* ZK Proof Audit Log */}
-        <div className="glass-panel space-y-4 rounded-2xl border border-gray-800 p-6">
-          <div className="flex items-center justify-between">
+        {/* ZK Selective Disclosure Audit Log */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b border-gray-800 pb-3">
             <div>
-              <h2 className="text-xl font-bold text-white">Zero-Knowledge Audit Trail</h2>
-              <p className="text-xs text-gray-400">
-                Verifiable ZK circuit executions across active auctions
+              <h2 className="text-xl font-bold text-white flex items-center space-x-2">
+                <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                <span>Zero-Knowledge Selective Disclosure Audit Trail ({auditReports.length})</span>
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Verify cryptographic ZK circuit proof validity packages across active procurements
               </p>
             </div>
-            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">
-              3 Proofs Ready for Audit
-            </span>
+            <Badge variant="cyan">{auditReports.length} Verifiable ZK Proofs</Badge>
           </div>
 
-          <div className="divide-y divide-gray-800">
-            {mockAudits.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col justify-between gap-4 py-4 sm:flex-row sm:items-center"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-semibold text-emerald-400">
-                      {item.id}
-                    </span>
-                    <span className="rounded border border-gray-700 bg-gray-900 px-2 py-0.5 font-mono text-[10px] text-gray-300">
-                      {item.circuit}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-white">{item.auctionTitle}</h3>
-                  <div className="font-mono text-xs text-gray-400">
-                    Commitment: {item.commitmentHash}
-                  </div>
-                </div>
+          {loading ? (
+            <div className="py-12 text-center text-xs text-gray-400">Loading selective disclosure audit trails...</div>
+          ) : auditReports.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-gray-800 p-12 text-center text-xs text-gray-500">
+              No ZK proof audit packages available for verification yet.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {auditReports.map((report) => (
+                <Card key={report.auditId} className="border-gray-800 bg-gray-900/60 backdrop-blur-xl">
+                  <CardContent className="p-5 space-y-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="indigo">{report.stageName}</Badge>
+                          <span className="font-mono text-xs text-gray-400">Audit ID: {report.auditId}</span>
+                        </div>
+                        <h3 className="text-base font-bold text-white">{report.procurementTitle}</h3>
+                      </div>
 
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    isLoading={verifyingHash === item.id}
-                    onClick={() => runAuditVerification(item.id)}
-                    className="border-emerald-500/30 text-xs text-emerald-300 hover:bg-emerald-500/10"
-                  >
-                    Verify ZK Witness
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        isLoading={verifyingId === report.auditId}
+                        onClick={() => handleVerifyProof(report.auditId)}
+                        className="text-xs font-semibold"
+                      >
+                        <Cpu className="h-3.5 w-3.5 mr-1.5" /> Verify Compact ZK Proof
+                      </Button>
+                    </div>
+
+                    {/* ZK Proof Validity & Cryptographic Commitments */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-gray-950 p-3.5 rounded-xl border border-gray-800 font-mono text-xs">
+                      <div>
+                        <span className="text-gray-500 block text-[10px]">Compact Circuit Name</span>
+                        <span className="text-cyan-300 font-bold">{report.circuitName}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 block text-[10px]">Verification Key Hash</span>
+                        <span className="text-indigo-300">{report.verificationKeyHash.slice(0, 20)}...</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 block text-[10px]">Rule Commitment Hash</span>
+                        <span className="text-emerald-300">{report.ruleCommitmentHash.slice(0, 20)}...</span>
+                      </div>
+                    </div>
+
+                    {/* Selective Disclosure Privacy Confirmation */}
+                    <div className="flex items-center justify-between text-[11px] text-gray-400 font-mono bg-emerald-950/20 border border-emerald-500/20 p-2.5 rounded-lg">
+                      <span className="text-emerald-300 flex items-center">
+                        <KeyRound className="h-3.5 w-3.5 mr-1.5 text-emerald-400" />
+                        Selective Disclosure Protocol: <strong className="text-white ml-1">Zero raw document or losing price leakage</strong>
+                      </span>
+                      <span>Verified: {new Date(report.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </RoleGuard>

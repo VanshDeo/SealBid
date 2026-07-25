@@ -6,12 +6,12 @@ import { createProcurementAction, CreateProcurementInput } from "../actions/proc
 
 describe("SealBid Procurement Creation & Compact ZK Rule Generator Test Suite", () => {
   describe("1. Managed Compact Procurement Circuit Artifacts", () => {
-    it("should export ProcurementRegistryContract circuit metadata with 5 compiled circuits", () => {
+    it("should export ProcurementRegistryContract circuit metadata with 6 compiled circuits", () => {
       assert.equal(
         PROCUREMENT_CIRCUITS_METADATA.contractName,
         "ProcurementRegistryContract"
       );
-      assert.equal(PROCUREMENT_CIRCUITS_METADATA.circuits.length, 5);
+      assert.equal(PROCUREMENT_CIRCUITS_METADATA.circuits.length, 6);
 
       const circuitNames = PROCUREMENT_CIRCUITS_METADATA.circuits.map((c) => c.name);
       assert.deepEqual(circuitNames, [
@@ -19,6 +19,7 @@ describe("SealBid Procurement Creation & Compact ZK Rule Generator Test Suite", 
         "verify_procurement_eligibility",
         "submit_technical_proposal_hash",
         "submit_commercial_bid_commitment",
+        "evaluate_winning_bid",
         "reveal_winner_legal_proof",
       ]);
     });
