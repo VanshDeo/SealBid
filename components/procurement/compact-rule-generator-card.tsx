@@ -9,11 +9,19 @@ import { Copy, Check, Cpu } from "lucide-react";
 
 interface CompactRuleGeneratorCardProps {
   rules: CompactEligibilityRules;
+  title?: string;
+  minTurnoverUsd?: number;
+  minExperienceYears?: number;
 }
 
 export function CompactRuleGeneratorCard({
   rules,
+  title,
+  minTurnoverUsd,
+  minExperienceYears,
 }: CompactRuleGeneratorCardProps) {
+  void minTurnoverUsd;
+  void minExperienceYears;
   const [copied, setCopied] = useState(false);
 
   const copyCode = () => {
@@ -31,7 +39,9 @@ export function CompactRuleGeneratorCard({
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <CardTitle className="text-lg text-white">Generated Compact ZK Circuit Rules</CardTitle>
+              <CardTitle className="text-lg text-white">
+                {title ? `ZK Rules: ${title}` : "Generated Compact ZK Circuit Rules"}
+              </CardTitle>
               <Badge variant="zk">Compact v0.14.2</Badge>
             </div>
             <CardDescription className="text-gray-400 text-xs">
