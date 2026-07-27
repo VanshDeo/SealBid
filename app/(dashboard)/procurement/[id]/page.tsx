@@ -77,9 +77,9 @@ export default function ProgressiveProcurementDetailPage({
     return (
       <div className="container mx-auto py-12 px-4 text-center">
         <h2 className="text-xl font-bold text-white mb-4">Procurement RFP Not Found</h2>
-        <Button asChild variant="outline">
-          <Link href="/procurement">Back to Procurements</Link>
-        </Button>
+        <Link href="/procurement">
+          <Button variant="outline">Back to Procurements</Button>
+        </Link>
       </div>
     );
   }
@@ -93,12 +93,12 @@ export default function ProgressiveProcurementDetailPage({
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
       {/* Back link */}
       <div>
-        <Button asChild variant="ghost" size="sm" className="text-gray-400 hover:text-white mb-2">
-          <Link href="/procurement">
+        <Link href="/procurement">
+          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white mb-2">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Procurements
-          </Link>
-        </Button>
+          </Button>
+        </Link>
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -146,7 +146,7 @@ export default function ProgressiveProcurementDetailPage({
             <span>Compact ZK Rule Commitment</span>
           </div>
           <div className="text-cyan-400 font-mono text-[11px] truncate">
-            {rfp.compactRules.ruleCommitment}
+            {rfp.compactRules.ruleCommitmentHash}
           </div>
         </div>
 
