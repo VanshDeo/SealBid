@@ -14,7 +14,7 @@ interface RoleGuardProps {
 }
 
 export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
-  const { isConnected, connect } = useMidnightWallet();
+  const { isConnected, connect, error } = useMidnightWallet();
   const { session, switchRoleForDemo } = useAuth();
 
   // 1. Wallet Not Connected
@@ -29,6 +29,11 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
           Decentralized authentication requires a connected Lace Wallet to verify your identity and
           decrypt off-chain business role data.
         </p>
+        {error && (
+          <div className="mt-4 rounded-xl border border-red-500/30 bg-red-950/80 p-3 text-xs text-red-300">
+            {error}
+          </div>
+        )}
         <div className="mt-6 flex justify-center">
           <Button variant="primary" onClick={connect} className="glow-primary px-8">
             Connect Lace Wallet

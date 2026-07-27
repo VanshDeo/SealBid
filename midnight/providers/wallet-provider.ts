@@ -20,25 +20,30 @@ export class MidnightWalletProvider implements IWalletProvider {
   private getInjectedConnector() {
     if (typeof window === "undefined") return null;
 
-    const midnightObj = (
-      window as unknown as {
-        midnight?: Record<string, { enable: () => Promise<DAppConnectorWalletAPI> }>;
-      }
-    ).midnight;
-    if (midnightObj?.mnLace) {
-      return midnightObj.mnLace;
+    const win = window as unknown as {
+      midnight?: Record<string, { enable: () => Promise<DAppConnectorWalletAPI> }>;
+      cardano?: Record<string, { enable: () => Promise<DAppConnectorWalletAPI> }>;
+    };
+
+    // 1. Prefer Midnight Lace injected extension
+    if (win.midnight?.mnLace) {
+      return win.midnight.mnLace;
     }
-    if (midnightObj?.lace) {
-      return midnightObj.lace;
+    if (win.midnight?.lace) {
+      return win.midnight.lace;
     }
-    const cardanoObj = (
-      window as unknown as {
-        cardano?: Record<string, { enable: () => Promise<DAppConnectorWalletAPI> }>;
-      }
-    ).cardano;
-    if (cardanoObj?.lace) {
-      return cardanoObj.lace;
+    if (win.midnight?.midnightLace) {
+      return win.midnight.midnightLace;
     }
+
+    // 2. Cardano Lace DApp connector fallback
+    if (win.cardano?.mnLace) {
+      return win.cardano.mnLace;
+    }
+    if (win.cardano?.lace) {
+      return win.cardano.lace;
+    }
+
     return null;
   }
 
@@ -73,7 +78,7 @@ export class MidnightWalletProvider implements IWalletProvider {
         coinPublicKey = state.coinPublicKey || "";
         encryptionPublicKey = state.encryptionPublicKey || "";
         if (state.balances && state.balances.length > 0) {
-          balance = state.balances[0].amount || 0n;
+          balance = BigInt(state.balances[0].amount || 0);
         }
         if (state.networkId) {
           networkId = state.networkId;
@@ -84,19 +89,20 @@ export class MidnightWalletProvider implements IWalletProvider {
         networkId = await api.getNetworkId();
       }
 
-      // Fallback formatting if wallet state returns partial properties
-      if (!address) {
-        address = coinPublicKey || "mn_test1qqx79093eamxvgspg8p3pwn5q963g6vl82y7qg6k3r";
-      }
-      if (!coinPublicKey) {
-        coinPublicKey = `0xcoin_pk_${address.slice(-16)}`;
+      // Check if wallet state is populated or if API directly returns account keys
+      if (!address && typeof (api as unknown as { getAccount?: () => Promise<{ address?: string; coinPublicKey?: string }> }).getAccount === "function") {
+        const acc = await (api as unknown as { getAccount: () => Promise<{ address?: string; coinPublicKey?: string }> }).getAccount();
+        if (acc) {
+          address = acc.address || "";
+          coinPublicKey = acc.coinPublicKey || "";
+        }
       }
 
       const account: WalletAccountState = {
-        address,
-        coinPublicKey,
+        address: address || coinPublicKey || "mn_test1qqx79093eamxvgspg8p3pwn5q963g6vl82y7qg6k3r",
+        coinPublicKey: coinPublicKey || `0xcoin_pk_${address.slice(-16)}`,
         encryptionPublicKey,
-        balance: balance > 0n ? balance : 10_000_000_000n,
+        balance,
         networkId,
       };
 
@@ -107,10 +113,29 @@ export class MidnightWalletProvider implements IWalletProvider {
       );
       return account;
     } catch (error: unknown) {
-      const errMessage =
+      const rawMsg =
         error instanceof Error ? error.message : "User rejected or closed Lace Wallet popup.";
-      console.error("[MidnightWalletProvider] Connection failed:", errMessage);
-      throw new Error(`Failed to connect Lace Wallet: ${errMessage}`);
+      console.error("[MidnightWalletProvider] Connection failed:", rawMsg);
+
+      let userFriendlyMsg = rawMsg;
+      if (
+        rawMsg.includes("Cardano wallet API is not available") ||
+        rawMsg.includes("DApp connector functionality may be disabled") ||
+        rawMsg.includes("not available")
+      ) {
+        userFriendlyMsg =
+          "Lace DApp Connector is currently disabled or locked in your browser extension. " +
+          "Please open your Lace Wallet extension, unlock your wallet, ensure DApp Connector is enabled in Lace Settings, and refresh the page.";
+      } else if (
+        rawMsg.toLowerCase().includes("user rejected") ||
+        rawMsg.toLowerCase().includes("closed") ||
+        rawMsg.toLowerCase().includes("declined")
+      ) {
+        userFriendlyMsg =
+          "Connection prompt was closed or rejected in Lace Wallet popup. Please click Connect Midnight Wallet again to authorize.";
+      }
+
+      throw new Error(userFriendlyMsg);
     }
   }
 
