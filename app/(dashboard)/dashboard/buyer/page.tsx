@@ -8,14 +8,11 @@ import { getBuyerProcurementStatsAction } from "@/actions/procurement-actions";
 import { ProcurementRfp } from "@/lib/types";
 import { ProcurementCard } from "@/components/procurement/procurement-card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Briefcase,
   PlusCircle,
-  TrendingUp,
   Lock,
   FileCheck,
-  ShieldCheck,
   Building2,
   DollarSign,
 } from "lucide-react";

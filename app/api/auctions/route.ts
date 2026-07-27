@@ -19,7 +19,7 @@ export async function GET() {
       },
       { status: 200 }
     );
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

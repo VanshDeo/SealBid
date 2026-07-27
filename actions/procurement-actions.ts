@@ -413,7 +413,6 @@ export async function evaluateStage3AwardAction(params: {
 
     // If winner is not explicitly provided, execute predefined procurement scoring rule engine
     if (!winnerAnonId) {
-      const scoringMethod = rfp?.evaluationCriteria?.scoringMethod || "MEAT";
       const techWeight = rfp?.evaluationCriteria?.technicalScoreWeight ?? 50;
       const priceWeight = rfp?.evaluationCriteria?.financialPriceWeight ?? 50;
 

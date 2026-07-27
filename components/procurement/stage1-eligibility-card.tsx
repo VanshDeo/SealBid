@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import { ProcurementRfp, Stage1EligibilitySubmission } from "@/lib/types";
 import { submitStage1EligibilityAction } from "@/actions/procurement-actions";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, Lock, CheckCircle2, UserX, AlertTriangle, Fingerprint } from "lucide-react";
+import { ShieldCheck, CheckCircle2, UserX, AlertTriangle, Fingerprint } from "lucide-react";
 
 interface Stage1EligibilityCardProps {
   rfp: ProcurementRfp;
@@ -46,7 +46,7 @@ export function Stage1EligibilityCard({
       } else {
         setError(res.error || "ZK Eligibility Verification failed.");
       }
-    } catch (err) {
+    } catch {
       setError("Execution error during Stage 1 ZK proof generation.");
     } finally {
       setIsLoading(false);

@@ -2,7 +2,6 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { PROCUREMENT_CIRCUITS_METADATA } from "../contracts/managed/procurement/index.js";
 import {
-  createProcurementAction,
   submitStage1EligibilityAction,
   submitStage2TechnicalProposalAction,
   evaluateStage2TechnicalAction,
@@ -14,7 +13,6 @@ import { ProcurementStorage } from "../storage/procurement-storage";
 import { VendorProfile } from "../lib/types";
 
 describe("SealBid Progressive Procurement Multi-Stage Test Suite", () => {
-  const testRfpId = "rfp_progressive_test_2026";
   const buyerWallet = "mn_test1qqbuyer_test_address_001";
   const vendor1Wallet = "mn_test1qqvendor_alpha_address_001";
   const vendor2Wallet = "mn_test1qqvendor_beta_address_002";

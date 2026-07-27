@@ -9,19 +9,16 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  ShieldCheck,
   Zap,
   CheckCircle2,
   XCircle,
   Cpu,
   Lock,
-  ArrowRight,
   FileCheck2,
 } from "lucide-react";
 

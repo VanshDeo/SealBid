@@ -8,7 +8,6 @@ import {
   PreviousProject,
   EncryptedVendorProfile,
 } from "@/lib/types";
-import { VENDOR_CERTIFICATION_TYPES } from "@/lib/constants";
 import { encryptedVendorStorage, sha256Hex } from "@/storage/vendor-storage";
 import { registerVendorAction } from "@/actions/vendor-actions";
 import {
@@ -35,7 +34,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  KeyRound,
   FileCode2,
 } from "lucide-react";
 
@@ -116,7 +114,6 @@ export function VendorRegistrationForm({ walletAddress }: { walletAddress?: stri
   // Calculate commitments dynamically
   useEffect(() => {
     async function updateHashes() {
-      const vendorId = "vendor_preview_id";
       const salt = "sealbid_salt";
       const profileHash = await sha256Hex(`${companyName}:${registrationNumber}:${salt}`);
       const turnHash = await sha256Hex(`${annualTurnoverUsd}:${fiscalYear}:${salt}`);

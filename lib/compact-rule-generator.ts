@@ -1,4 +1,4 @@
-import { ProcurementRfp, CompactEligibilityRules } from "./types";
+import { CompactEligibilityRules } from "./types";
 import { sha256Hex } from "@/storage/vendor-storage";
 
 /**

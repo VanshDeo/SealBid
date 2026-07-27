@@ -7,16 +7,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  ShieldCheck,
   Lock,
   CheckCircle2,
   XCircle,
   Cpu,
-  FileCode2,
   EyeOff,
   Sparkles,
   AlertTriangle,
-  Fingerprint,
 } from "lucide-react";
 
 interface ConfidentialEligibilityVerifierProps {
@@ -62,7 +59,7 @@ export function ConfidentialEligibilityVerifier({
       } else {
         setError(res.error || "ZK Proof generation failed.");
       }
-    } catch (err) {
+    } catch {
       setError("Error executing Compact ZK smart contract circuit.");
     } finally {
       setIsLoading(false);

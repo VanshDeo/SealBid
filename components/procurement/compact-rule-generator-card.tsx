@@ -5,20 +5,14 @@ import { CompactEligibilityRules } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Code2, Copy, Check, ShieldCheck, Sparkles, Cpu } from "lucide-react";
+import { Copy, Check, Cpu } from "lucide-react";
 
 interface CompactRuleGeneratorCardProps {
   rules: CompactEligibilityRules;
-  title?: string;
-  minTurnoverUsd?: number;
-  minExperienceYears?: number;
 }
 
 export function CompactRuleGeneratorCard({
   rules,
-  title = "Custom Procurement Eligibility Circuit",
-  minTurnoverUsd = 10_000_000,
-  minExperienceYears = 5,
 }: CompactRuleGeneratorCardProps) {
   const [copied, setCopied] = useState(false);
 

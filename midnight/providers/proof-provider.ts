@@ -71,6 +71,7 @@ export class MidnightProofProvider implements IProofProvider {
     proofBytes: string,
     _publicInputs: Record<string, unknown>
   ): Promise<boolean> {
+    void _publicInputs;
     console.log(`[MidnightProofProvider] Verifying proof bytes (${proofBytes.length} bytes)`);
     if (!proofBytes) return false;
     return proofBytes.startsWith("0xzkproof_") || proofBytes.length > 20;

@@ -7,7 +7,7 @@ import { encryptedVendorStorage } from "@/storage/vendor-storage";
 import { VendorProfileCard } from "@/components/vendor/vendor-profile-card";
 import { VendorQualificationTester } from "@/components/vendor/vendor-qualification-tester";
 import { Button } from "@/components/ui/button";
-import { Building2, Plus, ShieldCheck, ArrowRight } from "lucide-react";
+import { Plus, ShieldCheck } from "lucide-react";
 
 export default function VendorProfilePage() {
   const [record, setRecord] = useState<EncryptedVendorProfile | null>(null);

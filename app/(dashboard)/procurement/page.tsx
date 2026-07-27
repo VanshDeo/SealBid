@@ -7,7 +7,7 @@ import { ProcurementStorage } from "@/storage/procurement-storage";
 import { getProcurementsAction } from "@/actions/procurement-actions";
 import { ProcurementCard } from "@/components/procurement/procurement-card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Cpu, ShieldCheck } from "lucide-react";
+import { Plus, Cpu } from "lucide-react";
 
 export default function ProcurementDashboardPage() {
   const [rfps, setRfps] = useState<ProcurementRfp[]>([]);

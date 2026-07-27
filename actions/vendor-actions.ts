@@ -2,7 +2,6 @@
 
 import type {
   VendorProfile,
-  EncryptedVendorProfile,
   QualificationCheckRequest,
   QualificationVerificationResult,
 } from "@/lib/types";

@@ -9,7 +9,7 @@ import {
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Lock, CheckCircle2, XCircle, AlertCircle, Send, Award } from "lucide-react";
+import { FileText, Lock, CheckCircle2, XCircle, AlertCircle, Send } from "lucide-react";
 
 interface Stage2TechnicalCardProps {
   rfp: ProcurementRfp;
@@ -70,7 +70,7 @@ export function Stage2TechnicalCard({
       } else {
         setError(res.error || "Failed to submit technical proposal.");
       }
-    } catch (err) {
+    } catch {
       setError("Error during technical proposal submission.");
     } finally {
       setIsLoading(false);

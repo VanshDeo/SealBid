@@ -1,4 +1,3 @@
-import { ContractDeploymentService } from "../midnight/services/contract-deployment-service";
 import {
   SEALBID_CIRCUITS_METADATA,
   CONTRACT_BYTECODE_HASH,
@@ -29,7 +28,7 @@ async function main() {
   });
 
   console.log("\n[3/4] Initializing Ledger State & Constructor Proof...");
-  const initialState = {
+  const _initialState = {
     auction_id: "0x" + Buffer.from("auction_preview_001").toString("hex").padEnd(64, "0"),
     seller_pk: "0x" + Buffer.from("seller_public_key_preview").toString("hex").padEnd(64, "0"),
     reserve_price: 1000000000n, // 1,000 tDUST
@@ -38,7 +37,7 @@ async function main() {
     highest_commitment: "0x0000000000000000000000000000000000000000000000000000000000000000",
     is_settled: false,
   };
-  console.log(" ✔ Initial ledger state constructed.");
+  console.log(" ✔ Initial ledger state constructed:", Object.keys(_initialState).length, "parameters.");
 
   console.log("\n[4/4] Submitting Deployment Transaction to Midnight Preview Testnet...");
   // Simulated deterministic preview address for CLI verification

@@ -10,15 +10,13 @@ import {
 } from "@/actions/procurement-actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Scale,
   ShieldCheck,
   FileCheck2,
-  Lock,
   KeyRound,
   CheckCircle2,
-  AlertCircle,
   EyeOff,
   Cpu,
 } from "lucide-react";

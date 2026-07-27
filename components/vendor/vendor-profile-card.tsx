@@ -15,14 +15,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   Globe,
   Lock,
-  Eye,
-  EyeOff,
   Building2,
   ShieldCheck,
   DollarSign,
-  Factory,
   Briefcase,
-  ExternalLink,
   CheckCircle2,
 } from "lucide-react";
 

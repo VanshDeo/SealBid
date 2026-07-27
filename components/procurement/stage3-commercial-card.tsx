@@ -67,7 +67,7 @@ export function Stage3CommercialCard({
       } else {
         setError(res.error || "Failed to submit commercial bid.");
       }
-    } catch (err) {
+    } catch {
       setError("Error during commercial bid submission.");
     } finally {
       setIsLoading(false);

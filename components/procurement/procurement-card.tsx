@@ -8,12 +8,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Building2,
   Calendar,
   ShieldCheck,
   Zap,
-  CheckCircle2,
-  XCircle,
   FileCode2,
   DollarSign,
   Briefcase,

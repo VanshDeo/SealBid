@@ -4,11 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ProcurementRfp,
-  EvaluationCriteria,
-  EligibilityThresholds,
-  ProcurementDeadlines,
   BiddingStage,
-  ContractTerms,
   CompactEligibilityRules,
 } from "@/lib/types";
 import { VENDOR_CERTIFICATION_TYPES, BIDDING_STAGES } from "@/lib/constants";
@@ -18,7 +14,6 @@ import { ProcurementStorage } from "@/storage/procurement-storage";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { CompactRuleGeneratorCard } from "./compact-rule-generator-card";
 import {
   FileText,
@@ -29,9 +24,6 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
-  Lock,
-  Building2,
-  DollarSign,
   Cpu,
 } from "lucide-react";
 

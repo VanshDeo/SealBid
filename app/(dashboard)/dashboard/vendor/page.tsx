@@ -8,17 +8,13 @@ import { getVendorConfidentialSubmissionsAction } from "@/actions/procurement-ac
 import { ProcurementRfp, Stage1EligibilitySubmission, Stage2TechnicalSubmission, Stage3CommercialSubmission } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Building2,
   Lock,
-  ShieldCheck,
   CheckCircle2,
-  FileText,
-  Trophy,
   ExternalLink,
   EyeOff,
-  Briefcase,
 } from "lucide-react";
 
 interface SubmissionItem {

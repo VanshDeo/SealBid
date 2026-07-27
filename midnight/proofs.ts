@@ -42,6 +42,7 @@ export class ProofGenerator {
     proofBytes: string,
     _publicInputs: Record<string, unknown>
   ): Promise<boolean> {
+    void _publicInputs;
     console.log(`[ProofGenerator] Verifying proof bytes (${proofBytes.length} chars)`);
     return proofBytes.startsWith("0xzkproof_");
   }

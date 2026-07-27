@@ -6,11 +6,11 @@ import { revealStage4WinningLegalDocAction } from "@/actions/procurement-actions
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, ShieldCheck, CheckCircle2, Lock, Building2, FileCheck, Mail, MapPin, CreditCard } from "lucide-react";
+import { Eye, ShieldCheck, CheckCircle2, Building2, FileCheck, Mail, MapPin, CreditCard } from "lucide-react";
 
 interface Stage4LegalRevealCardProps {
   rfp: ProcurementRfp;
-  userRole: "buyer" | "vendor" | "auditor";
+  userRole?: "buyer" | "vendor" | "auditor";
   winningAnonymousBidderId?: string;
   legalReveal?: Stage4LegalReveal;
   buyerWalletAddress?: string;
@@ -19,7 +19,6 @@ interface Stage4LegalRevealCardProps {
 
 export function Stage4LegalRevealCard({
   rfp,
-  userRole,
   winningAnonymousBidderId,
   legalReveal,
   buyerWalletAddress = "mn_test1qqbuyer001x79093eamxvgspg8p3pwn5q963g6v",
@@ -82,7 +81,7 @@ export function Stage4LegalRevealCard({
       } else {
         setError(res.error || "Failed to reveal winning legal documentation.");
       }
-    } catch (err) {
+    } catch {
       setError("Error during selective legal reveal.");
     } finally {
       setIsLoading(false);
