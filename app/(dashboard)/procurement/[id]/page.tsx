@@ -15,7 +15,7 @@ import { Stage3CommercialCard } from "@/components/procurement/stage3-commercial
 import { Stage4LegalRevealCard } from "@/components/procurement/stage4-legal-reveal-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Building2, Calendar, ShieldCheck, DollarSign, FileCode2 } from "lucide-react";
+import { ArrowLeft, Building2, ShieldCheck, DollarSign, FileCode2 } from "lucide-react";
 
 export default function ProgressiveProcurementDetailPage({
   params,
@@ -31,27 +31,39 @@ export default function ProgressiveProcurementDetailPage({
   const [progState, setProgState] = useState<ProgressiveProcurementState | null>(null);
   const [selectedStage, setSelectedStage] = useState<ProgressiveStage>("STAGE_1_ELIGIBILITY");
   const [isLoading, setIsLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const loadData = useCallback(async () => {
-    try {
-      const foundRfp = await getProcurementByIdAction(rfpId);
-      setRfp(foundRfp);
-
-      const state = await getProgressiveProcurementStateAction(rfpId);
-      setProgState(state);
-      if (state) {
-        setSelectedStage(state.currentStage);
-      }
-    } catch (err) {
-      console.error("Failed to load progressive procurement detail:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [rfpId]);
+  const handleReload = useCallback(() => {
+    setReloadKey((k) => k + 1);
+  }, []);
 
   useEffect(() => {
-    void loadData();
-  }, [loadData]);
+    let ignore = false;
+    async function fetchData() {
+      try {
+        const foundRfp = await getProcurementByIdAction(rfpId);
+        if (ignore) return;
+        setRfp(foundRfp);
+
+        const state = await getProgressiveProcurementStateAction(rfpId);
+        if (ignore) return;
+        setProgState(state);
+        if (state && state.currentStage) {
+          setSelectedStage(state.currentStage);
+        }
+      } catch (err) {
+        console.error("Failed to load progressive procurement detail:", err);
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
+    }
+    void fetchData();
+    return () => {
+      ignore = true;
+    };
+  }, [rfpId, reloadKey]);
 
   if (isLoading) {
     return (
@@ -63,78 +75,84 @@ export default function ProgressiveProcurementDetailPage({
 
   if (!rfp) {
     return (
-      <div className="space-y-4">
-        <Link href="/procurement">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back to Procurements
-          </Button>
-        </Link>
-        <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-6 text-red-300 text-sm">
-          Procurement RFP not found for ID: {rfpId}
-        </div>
+      <div className="container mx-auto py-12 px-4 text-center">
+        <h2 className="text-xl font-bold text-white mb-4">Procurement RFP Not Found</h2>
+        <Button asChild variant="outline">
+          <Link href="/procurement">Back to Procurements</Link>
+        </Button>
       </div>
     );
   }
 
-  // Determine current vendor's anonymous bidder ID if Stage 1 is completed
   const myStage1 = progState?.stage1Eligibility.find(
     (s) => s.isEligible
   );
   const anonymousBidderId = myStage1?.anonymousBidderId;
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <Link href="/procurement" className="inline-flex items-center text-xs text-gray-400 hover:text-white mb-2 transition-colors">
-            <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back to Procurements
+    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
+      {/* Back link */}
+      <div>
+        <Button asChild variant="ghost" size="sm" className="text-gray-400 hover:text-white mb-2">
+          <Link href="/procurement">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Procurements
           </Link>
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <Badge variant="indigo">{rfp.sector}</Badge>
-            <Badge variant="emerald">${rfp.estimatedBudgetUsd.toLocaleString()} USD Budget</Badge>
-            <Badge variant="zk">PROGRESSIVE CONFIDENTIAL</Badge>
+        </Button>
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center space-x-3 mb-2">
+              <Badge variant="outline" className="border-cyan-500/40 text-cyan-400 bg-cyan-500/10">
+                Progressive Procurement
+              </Badge>
+              <span className="text-xs font-mono text-gray-400">ID: {rfp.id}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{rfp.title}</h1>
+            <p className="text-sm text-gray-400 mt-1 max-w-3xl">{rfp.description}</p>
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">{rfp.title}</h1>
-          <p className="text-xs text-gray-400 mt-1 max-w-3xl">{rfp.description}</p>
+
+          <div className="flex items-center space-x-3">
+            <Badge className="bg-indigo-600 text-white font-mono text-xs px-3 py-1">
+              Role: {userRole.toUpperCase()}
+            </Badge>
+          </div>
         </div>
       </div>
 
-      {/* RFP Key Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-1">
-          <div className="text-gray-500 flex items-center space-x-1.5">
-            <DollarSign className="h-3.5 w-3.5 text-cyan-400" />
-            <span>Min Turnover Threshold</span>
+      {/* Metadata Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+          <div className="flex items-center text-xs font-medium text-gray-400 space-x-1.5">
+            <Building2 className="h-3.5 w-3.5 text-indigo-400" />
+            <span>Buyer Public Address</span>
           </div>
-          <div className="text-white font-bold text-sm">
-            ${rfp.eligibilityThresholds.minTurnoverUsd.toLocaleString()} USD
+          <div className="text-white font-mono text-xs truncate">{rfp.buyerAddress}</div>
+        </div>
+
+        <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+          <div className="flex items-center text-xs font-medium text-gray-400 space-x-1.5">
+            <DollarSign className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Estimated Budget</span>
+          </div>
+          <div className="text-emerald-400 font-semibold text-sm">
+            ${rfp.estimatedBudgetUsd ? rfp.estimatedBudgetUsd.toLocaleString() : "Undisclosed"}
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-1">
-          <div className="text-gray-500 flex items-center space-x-1.5">
-            <Building2 className="h-3.5 w-3.5 text-teal-400" />
-            <span>Min Experience</span>
+        <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+          <div className="flex items-center text-xs font-medium text-gray-400 space-x-1.5">
+            <ShieldCheck className="h-3.5 w-3.5 text-cyan-400" />
+            <span>Compact ZK Rule Commitment</span>
           </div>
-          <div className="text-white font-bold text-sm">
-            {rfp.eligibilityThresholds.minExperienceYears} Years
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-1">
-          <div className="text-gray-500 flex items-center space-x-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Required Certs</span>
-          </div>
-          <div className="text-gray-300 text-[11px] truncate">
-            {rfp.eligibilityThresholds.requiredCertifications.join(", ") || "ISO 9001"}
+          <div className="text-cyan-400 font-mono text-[11px] truncate">
+            {rfp.compactRules.ruleCommitment}
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-1">
-          <div className="text-gray-500 flex items-center space-x-1.5">
-            <FileCode2 className="h-3.5 w-3.5 text-indigo-400" />
+        <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+          <div className="flex items-center text-xs font-medium text-gray-400 space-x-1.5">
+            <FileCode2 className="h-3.5 w-3.5 text-cyan-400" />
             <span>Predicate Hash</span>
           </div>
           <div className="text-cyan-300 text-[11px] truncate">
@@ -156,7 +174,7 @@ export default function ProgressiveProcurementDetailPage({
             rfp={rfp}
             userRole={userRole}
             submissions={progState?.stage1Eligibility || []}
-            onSubmissionComplete={loadData}
+            onSubmissionComplete={handleReload}
           />
         )}
 
@@ -167,7 +185,7 @@ export default function ProgressiveProcurementDetailPage({
             eligibleSubmissions={progState?.stage1Eligibility || []}
             technicalSubmissions={progState?.stage2Technical || []}
             anonymousBidderId={anonymousBidderId}
-            onUpdateSubmissions={loadData}
+            onUpdateSubmissions={handleReload}
           />
         )}
 
@@ -179,7 +197,7 @@ export default function ProgressiveProcurementDetailPage({
             commercialSubmissions={progState?.stage3Commercial || []}
             anonymousBidderId={anonymousBidderId}
             winningAnonymousBidderId={progState?.winningAnonymousBidderId}
-            onUpdateSubmissions={loadData}
+            onUpdateSubmissions={handleReload}
           />
         )}
 
@@ -189,7 +207,7 @@ export default function ProgressiveProcurementDetailPage({
             userRole={userRole}
             winningAnonymousBidderId={progState?.winningAnonymousBidderId}
             legalReveal={progState?.stage4LegalReveal}
-            onUpdateSubmissions={loadData}
+            onUpdateSubmissions={handleReload}
           />
         )}
       </div>
