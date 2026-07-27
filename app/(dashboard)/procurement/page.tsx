@@ -13,26 +13,24 @@ export default function ProcurementDashboardPage() {
   const [rfps, setRfps] = useState<ProcurementRfp[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const serverData = await getProcurementsAction();
-      const localData = ProcurementStorage.getProcurements();
-      // Merge unique RFPs
-      const map = new Map<string, ProcurementRfp>();
-      localData.forEach((p) => map.set(p.id, p));
-      serverData.forEach((p) => map.set(p.id, p));
-      setRfps(Array.from(map.values()));
-    } catch (err) {
-      console.error("Failed to load procurements:", err);
-      setRfps(ProcurementStorage.getProcurements());
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadData();
+    async function loadData() {
+      try {
+        const serverData = await getProcurementsAction();
+        const localData = ProcurementStorage.getProcurements();
+        // Merge unique RFPs
+        const map = new Map<string, ProcurementRfp>();
+        localData.forEach((p) => map.set(p.id, p));
+        serverData.forEach((p) => map.set(p.id, p));
+        setRfps(Array.from(map.values()));
+      } catch (err) {
+        console.error("Failed to load procurements:", err);
+        setRfps(ProcurementStorage.getProcurements());
+      } finally {
+        setLoading(false);
+      }
+    }
+    void loadData();
   }, []);
 
   return (

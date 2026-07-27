@@ -240,16 +240,16 @@ describe("Confidential Bidding Module & Smart Contract Validations", () => {
 
   it("6. Midnight ProcurementContractService: Validate circuit execution rules", async () => {
     const mockProviders = {
-      wallet: {} as any,
-      proof: {} as any,
-      publicData: {} as any,
-      privateState: {} as any,
-      privateStateProvider: {} as any,
-      publicDataProvider: {} as any,
-      zkConfigProvider: {} as any,
-      proofProvider: {} as any,
-      walletProvider: {} as any,
-    };
+      wallet: {} as unknown,
+      proof: {} as unknown,
+      publicData: {} as unknown,
+      privateState: {} as unknown,
+      privateStateProvider: {} as unknown,
+      publicDataProvider: {} as unknown,
+      zkConfigProvider: {} as unknown,
+      proofProvider: {} as unknown,
+      walletProvider: {} as unknown,
+    } as unknown as Record<string, unknown>;
 
     const service = new ProcurementContractService(mockProviders);
 

@@ -71,16 +71,16 @@ export function ProcurementCreationWizard({ buyerAddress }: { buyerAddress?: str
   ]);
 
   // Step 4: Deadlines & Bidding Stage
-  const [qualificationDate, setQualificationDate] = useState(
+  const [qualificationDate, setQualificationDate] = useState(() =>
     new Date(Date.now() + 86400 * 5 * 1000).toISOString().slice(0, 10)
   );
-  const [biddingDate, setBiddingDate] = useState(
+  const [biddingDate, setBiddingDate] = useState(() =>
     new Date(Date.now() + 86400 * 10 * 1000).toISOString().slice(0, 10)
   );
-  const [revealDate, setRevealDate] = useState(
+  const [revealDate, setRevealDate] = useState(() =>
     new Date(Date.now() + 86400 * 12 * 1000).toISOString().slice(0, 10)
   );
-  const [awardDate, setAwardDate] = useState(
+  const [awardDate, setAwardDate] = useState(() =>
     new Date(Date.now() + 86400 * 15 * 1000).toISOString().slice(0, 10)
   );
   const [biddingStage, setBiddingStage] = useState<BiddingStage>("TWO_STAGE_QUALIFICATION");

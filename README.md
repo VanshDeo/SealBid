@@ -3,7 +3,8 @@
 ![Midnight Network](https://img.shields.io/badge/Network-Midnight%20Preview%20Testnet-00F0FF?style=for-the-badge)
 ![Compact Language](https://img.shields.io/badge/Language-Compact%20v0.14.2-7B2CBF?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Frontend-Next.js%2015-black?style=for-the-badge&logo=next.js)
-![Test Suite](https://img.shields.io/badge/Tests-8%2F8%20Passing-brightgreen?style=for-the-badge)
+![Test Suite](https://img.shields.io/badge/Tests-68%2F68%20Passing-brightgreen?style=for-the-badge)
+[![CI/CD Pipeline](https://img.shields.io/github/actions/workflow/status/VanshDeo/SealBid/ci.yml?branch=main&style=for-the-badge&logo=github&label=CI%2FCD)](https://github.com/VanshDeo/SealBid/actions)
 
 🌐 **Live Demo**: [https://sealbid-two.vercel.app](https://sealbid-two.vercel.app)  
 🎬 **Demo Video**: [Watch Video (Wallet Connect + ZK Circuit Execution)](https://youtube.com/watch?v=sealbid-demo-video)  
@@ -13,7 +14,21 @@
 
 ## 💡 Initial Product Idea
 
-**SealBid** is a decentralized, privacy-preserving sealed-bid auction protocol built on the Midnight Network using the **Compact** ZK smart contract language. Traditional blockchain auctions suffer from front-running, bid sniping, and public bid leakage. SealBid solves this by allowing bidders to submit cryptographically binding bid commitments without revealing their raw bid amounts, salt, or secret keys on-chain. Zero-knowledge circuits (`submit_sealed_bid` and `reveal_bid`) mathematically verify that bids satisfy auction reserve constraints and match revealed commitments without disclosing sensitive financial data to public ledger observers.
+**SealBid** is a decentralized, privacy-preserving sealed-bid auction & multi-stage procurement protocol built on the Midnight Network using the **Compact** ZK smart contract language. Traditional blockchain auctions and procurement RFPs suffer from front-running, bid sniping, commercial price leaks, and competitor collusion. SealBid solves this by allowing bidders to submit cryptographically binding bid commitments and execute zero-knowledge qualification proofs without revealing raw bid amounts, financial turnover, secret keys, or corporate documents on-chain. Compact ZK circuits mathematically verify that bids satisfy reserve constraints, turnover thresholds, and technical criteria without disclosing sensitive data to public ledger observers.
+
+---
+
+## 🛡️ Privacy Model: What an Observer Can and Cannot Learn
+
+Midnight's dual-state architecture isolates client-side private witness data from the public ledger state. Below is the precise breakdown of visibility boundaries for external observers and competitors:
+
+| Category | What an Observer CAN Learn (Public State) | What an Observer CANNOT Learn (Private Witness & Off-Chain) |
+| :--- | :--- | :--- |
+| **Auction / RFP Setup** | • Public RFP ID & title<br>• Buyer wallet public key<br>• Published deadline & reserve constraints | • Internal buyer budget ceilings<br>• Unreleased RFP evaluation criteria drafts |
+| **Bidder Qualification** | • Boolean ZK proof validity (`passed` / `failed`)<br>• Verification key hashes of Compact circuits | • Vendor exact annual turnover ($)<br>• Years of industry experience<br>• Private identity / secret keys before reveal |
+| **Sealed Bids** | • Cryptographic commitment `Hash(auction_id, bid_amount, salt)`<br>• Timestamp & block height of bid submission | • Exact numeric bid amount ($)<br>• Cryptographic entropy (`salt`)<br>• Bidder spending private key (`sk`) |
+| **Technical Submissions** | • Hash of technical proposal specification<br>• Buyer evaluation status (`ACCEPTED` / `REJECTED`) | • Proprietary technical proposal content<br>• Trade secrets, architecture diagrams, pricing formulas |
+| **Winner Settlement** | • Winning commitment hash<br>• Awarded winning vendor legal identity (in Stage 4) | • All losing vendors' bid amounts & cost proposals<br>• Unsuccessful vendors' legal docs & identities |
 
 ---
 
@@ -210,7 +225,7 @@ sealbid/
 │   └── services/               # Deployment & Circuit Execution Services
 ├── storage/                    # Encrypted local storage (AES-GCM for private witness)
 ├── tests/                      # Unit & integration test suite
-└── README.md                   # Project documentation & submission checklist
+└── README.md                   # Project documentation
 ```
 
 ---

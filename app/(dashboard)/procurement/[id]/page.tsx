@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { ProcurementRfp, ProgressiveProcurementState, ProgressiveStage } from "@/lib/types";
@@ -25,14 +25,14 @@ export default function ProgressiveProcurementDetailPage({
   const resolvedParams = use(params);
   const rfpId = resolvedParams.id;
   const { session } = useAuth();
-  const userRole = session.role || "vendor";
+  const userRole = session?.role || "vendor";
 
   const [rfp, setRfp] = useState<ProcurementRfp | null>(null);
   const [progState, setProgState] = useState<ProgressiveProcurementState | null>(null);
   const [selectedStage, setSelectedStage] = useState<ProgressiveStage>("STAGE_1_ELIGIBILITY");
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const foundRfp = await getProcurementByIdAction(rfpId);
       setRfp(foundRfp);
@@ -47,11 +47,11 @@ export default function ProgressiveProcurementDetailPage({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [rfpId]);
 
   useEffect(() => {
-    loadData();
-  }, [rfpId]);
+    void loadData();
+  }, [loadData]);
 
   if (isLoading) {
     return (

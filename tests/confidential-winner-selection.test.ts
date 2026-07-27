@@ -218,23 +218,23 @@ describe("Compact Confidential Winner Selection & Immutable Audit Trail Test Sui
       wallet: {
         getAccount: async () => ({ address: "mn_test1qqmock_address_001" }),
         submitTx: async () => ({ txHash: "0xtx_mock_123" }),
-      } as any,
+      } as unknown,
       proof: {
         generateProof: async () => ({ proofHash: "0xproof_mock_123" }),
-      } as any,
+      } as unknown,
       publicData: {
         getTransactionStatus: async () => ({ status: "SUCCESS" }),
-      } as any,
+      } as unknown,
       privateState: {
         getPrivateState: async () => null,
         setPrivateState: async () => {},
-      } as any,
-      privateStateProvider: {} as any,
-      publicDataProvider: {} as any,
-      zkConfigProvider: {} as any,
-      proofProvider: {} as any,
-      walletProvider: {} as any,
-    };
+      } as unknown,
+      privateStateProvider: {} as unknown,
+      publicDataProvider: {} as unknown,
+      zkConfigProvider: {} as unknown,
+      proofProvider: {} as unknown,
+      walletProvider: {} as unknown,
+    } as unknown as Record<string, unknown>;
 
     const service = new ProcurementContractService(mockProviders, "0xcontract_address_test_123");
 
