@@ -10,6 +10,8 @@ export interface ProcurementLedgerState {
   min_experience_threshold_years: bigint;
   required_certs_hash: string;
   bidding_deadline: bigint;
+  rules_commitment_hash?: string;
+  is_rules_locked?: boolean;
   is_open: boolean;
 }
 
@@ -170,6 +172,41 @@ export class ProcurementContractService extends BaseCompactContractService<
         total_bids_count: BigInt(totalBidsCount),
         winning_anonymous_bidder_id: winningAnonymousBidderId,
         evaluation_rules_hash: evaluationRulesHash,
+      },
+      privateWitness,
+      true
+    );
+  }
+
+  /**
+   * Stage 4: Selectively reveals legal documentation proof ONLY for the verified winning supplier.
+   * Rejects any attempt to reveal non-winning vendor identities or documents.
+   */
+  public async revealWinnerLegalProof(
+    procurementId: string,
+    designatedWinningAnonId: string,
+    requestingAnonId: string,
+    legalDocHashCommitment: string
+  ): Promise<CircuitExecutionResult<boolean>> {
+    if (requestingAnonId !== designatedWinningAnonId) {
+      throw new Error(
+        "Smart Contract Validation Failed: Selective disclosure violation — only the designated winning supplier can reveal legal documentation."
+      );
+    }
+
+    const privateWitness = {
+      procurement_id: procurementId,
+      winning_anonymous_bidder_id: designatedWinningAnonId,
+      legal_doc_hash: legalDocHashCommitment,
+      revealed_at: Date.now(),
+    };
+
+    return await this.executeCircuit(
+      "reveal_winner_legal_proof",
+      {
+        procurement_id: procurementId,
+        winning_anonymous_bidder_id: designatedWinningAnonId,
+        legal_doc_hash_commitment: legalDocHashCommitment,
       },
       privateWitness,
       true

@@ -234,6 +234,9 @@ export interface CompactEligibilityRules {
   predicateHash: string;
   publicInputs: string[];
   privateWitnesses: string[];
+  procurementRulesCommitmentHash?: string;
+  isRulesLocked?: boolean;
+  lockedAt?: string;
 }
 
 export interface Stage1EligibilitySubmission {
@@ -245,6 +248,8 @@ export interface Stage1EligibilitySubmission {
     turnoverSatisfied: boolean;
     experienceSatisfied: boolean;
   };
+  reusableCredentialId?: string;
+  factProofHash?: string;
 }
 
 export interface Stage2TechnicalSubmission {
@@ -332,6 +337,9 @@ export interface ProcurementRfp {
   status: "DRAFT" | "OPEN" | "QUALIFYING" | "EVALUATING" | "CLOSED";
   createdAt: string;
   progressiveState?: ProgressiveProcurementState;
+  isRulesLocked?: boolean;
+  rulesCommitmentHash?: string;
+  lockedAt?: string;
 }
 
 export interface ConfidentialEligibilityCheckInput {
@@ -368,6 +376,110 @@ export interface ConfidentialEligibilityProofPackage {
     certificationsSatisfied: boolean;
   };
   verifiedAt: string;
+}
+
+// Reusable Business Credentials: RAW DATA != PROOF OF FACT
+
+export interface ReusableBusinessCredentialPassport {
+  id: string;
+  vendorId: string;
+  walletAddress: string;
+  companyName: string;
+  credentialCommitmentHash: string;
+  // Proof of Fact thresholds (no raw balance sheets)
+  certifiedTurnoverTierUsd: number; // e.g. 10,000,000 (verifies turnover is >= this amount)
+  certifiedExperienceYears: number; // e.g. 5
+  certifiedAccreditations: Array<{
+    name: string;
+    issuer: string;
+    validUntil: string;
+    documentHash: string;
+  }>;
+  completedProjectsCount: number;
+  complianceAttestationHash: string;
+  issuedAt: string;
+  expiresAt: string;
+  attestationSignature: string;
+}
+
+export interface CredentialFactProof {
+  passportId: string;
+  vendorId: string;
+  credentialCommitmentHash: string;
+  predicateDescription: string;
+  proofOfFactHash: string;
+  turnoverSatisfied: boolean;
+  experienceSatisfied: boolean;
+  complianceSatisfied: boolean;
+  generatedAt: string;
+}
+
+// Comprehensive 6-Point Auditor Verification Record
+
+export interface ComprehensiveProcurementAuditRecord {
+  procurementId: string;
+  procurementTitle: string;
+  buyerAddress: string;
+  auditGeneratedAt: string;
+  isFullyAudited: boolean;
+  overallComplianceStatus: "COMPLIANT" | "NON_COMPLIANT" | "PARTIAL";
+
+  // 1. Tender rules pre-commitment verification
+  rulePreCommitmentVerification: {
+    passed: boolean;
+    rulesCommitmentHash: string;
+    isLockedBeforeBidding: boolean;
+    criteriaHash: string;
+    thresholdsHash: string;
+    deadlinesHash: string;
+    details: string;
+  };
+
+  // 2. Eligibility ZK verification
+  eligibilityVerification: {
+    passed: boolean;
+    totalApplicants: number;
+    qualifiedCount: number;
+    zeroKnowledgePreserved: boolean; // no raw turnover or identity exposed
+    details: string;
+  };
+
+  // 3. Bid submission validity & uniqueness
+  bidValidityVerification: {
+    passed: boolean;
+    sealedBidsCount: number;
+    allCommitmentsUnique: boolean;
+    noDuplicatePseudonyms: boolean;
+    details: string;
+  };
+
+  // 4. Deadline enforcement
+  deadlinesEnforcementVerification: {
+    passed: boolean;
+    allSubmissionsPrecededDeadlines: boolean;
+    qualificationDeadline: string;
+    biddingDeadline: string;
+    details: string;
+  };
+
+  // 5. Winner selection compliance
+  winnerSelectionVerification: {
+    passed: boolean;
+    awardedWinnerId: string;
+    followedCommittedMethod: string;
+    losingBidsConfidentialityProtected: boolean;
+    fairnessProofHash: string;
+    details: string;
+  };
+
+  // 6. Selective disclosure authorization
+  selectiveDisclosureVerification: {
+    passed: boolean;
+    onlyWinningSupplierDisclosed: boolean;
+    authorizedBuyerOnly: boolean;
+    zeroLosingDocumentsRevealed: boolean;
+    details: string;
+  };
 }
 
 

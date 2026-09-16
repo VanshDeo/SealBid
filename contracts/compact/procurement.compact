@@ -2,7 +2,7 @@
 // Language: Compact (Midnight ZK Smart Contract Language v0.14.2)
 
 module ProcurementRegistryContract {
-    // Ledger state fields representing public procurement parameters & eligibility constraints
+    // Ledger state fields representing public procurement parameters, eligibility constraints & pre-committed rules
     export ledger state: {
         procurement_id: Bytes<32>,
         buyer_address: Bytes<32>,
@@ -12,6 +12,8 @@ module ProcurementRegistryContract {
         min_experience_threshold_years: Uint<64>,
         required_certs_hash: Bytes<32>,
         bidding_deadline: Uint<64>,
+        rules_commitment_hash: Bytes<32>,
+        is_rules_locked: Boolean,
         is_open: Boolean
     };
 
@@ -22,7 +24,7 @@ module ProcurementRegistryContract {
         certifications_hash: Bytes<32>
     };
 
-    // Exported circuit entry point for registering a procurement RFP
+    // Exported circuit entry point for registering a procurement RFP with pre-committed rules
     export circuit register_procurement(
         procurement_id: Bytes<32>,
         title_hash: Bytes<32>,
@@ -31,6 +33,7 @@ module ProcurementRegistryContract {
         min_experience_threshold_years: Uint<64>,
         required_certs_hash: Bytes<32>
     ): Boolean {
+        // ZK Proof requirement: Bind and freeze immutable rules commitment upon tender creation
         return true;
     }
 

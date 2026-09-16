@@ -25,6 +25,7 @@ export function Stage1EligibilityCard({
 }: Stage1EligibilityCardProps) {
   const [turnoverUsd, setTurnoverUsd] = useState(15_000_000);
   const [experienceYears, setExperienceYears] = useState(7);
+  const [usePassport, setUsePassport] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mySubmission, setMySubmission] = useState<Stage1EligibilitySubmission | null>(null);
@@ -36,8 +37,33 @@ export function Stage1EligibilityCard({
       const res = await submitStage1EligibilityAction({
         procurementId: rfp.id,
         vendorWalletAddress,
-        vendorTurnoverUsd: Number(turnoverUsd),
-        vendorExperienceYears: Number(experienceYears),
+        vendorTurnoverUsd: usePassport ? undefined : Number(turnoverUsd),
+        vendorExperienceYears: usePassport ? undefined : Number(experienceYears),
+        reusablePassportId: usePassport ? `pass_${vendorWalletAddress.slice(-8)}` : undefined,
+        credentialPassport: usePassport
+          ? {
+              id: `pass_${vendorWalletAddress.slice(-8)}`,
+              vendorId: `vendor_${vendorWalletAddress.slice(-8)}`,
+              walletAddress: vendorWalletAddress,
+              companyName: "Certified Aerospace Solutions",
+              credentialCommitmentHash: "0xpass_comm_778899aabbcc",
+              certifiedTurnoverTierUsd: 15_000_000,
+              certifiedExperienceYears: 7,
+              certifiedAccreditations: [
+                {
+                  name: "ISO 9001: Quality Management",
+                  issuer: "Global Audit Bureau",
+                  validUntil: "2027-12-31",
+                  documentHash: "0xcert_iso9001",
+                },
+              ],
+              completedProjectsCount: 12,
+              complianceAttestationHash: "0xcomp_iso_verified",
+              issuedAt: new Date().toISOString(),
+              expiresAt: new Date(Date.now() + 365 * 86400 * 1000).toISOString(),
+              attestationSignature: "0xsig_cred_passport_valid",
+            }
+          : undefined,
       });
 
       if (res.success && res.submission) {
@@ -82,31 +108,81 @@ export function Stage1EligibilityCard({
 
         {userRole === "vendor" && !mySubmission && (
           <div className="rounded-xl border border-gray-800 bg-gray-950 p-4 space-y-4">
-            <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
-              Private Witness Inputs (Kept Confidential)
-            </h4>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs text-gray-400 block mb-1">Your Annual Turnover ($ USD)</label>
-                <input
-                  type="number"
-                  value={turnoverUsd}
-                  onChange={(e) => setTurnoverUsd(Number(e.target.value))}
-                  className="w-[#100%] rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-400 block mb-1">Your Operating Experience (Years)</label>
-                <input
-                  type="number"
-                  value={experienceYears}
-                  onChange={(e) => setExperienceYears(Number(e.target.value))}
-                  className="w-[#100%] rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
-                />
-              </div>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                Private Witness Inputs (Kept Confidential)
+              </h4>
+              <Badge variant="cyan">RAW DATA ≠ PROOF OF FACT</Badge>
             </div>
+
+            {/* Credential Mode Selection */}
+            <div className="flex rounded-lg border border-gray-800 bg-gray-900 p-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setUsePassport(false)}
+                className={`flex-1 py-1.5 px-3 rounded-md transition-all font-medium ${
+                  !usePassport ? "bg-indigo-600 text-white font-semibold" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Direct Witness Input
+              </button>
+              <button
+                type="button"
+                onClick={() => setUsePassport(true)}
+                className={`flex-1 py-1.5 px-3 rounded-md transition-all font-medium ${
+                  usePassport ? "bg-indigo-600 text-white font-semibold" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Reusable Credential Passport
+              </button>
+            </div>
+
+            {usePassport ? (
+              <div className="space-y-3 rounded-lg border border-indigo-500/20 bg-indigo-950/20 p-3.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-white flex items-center gap-1.5">
+                    <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                    Verified Business Credential Passport
+                  </span>
+                  <Badge variant="emerald">Attested</Badge>
+                </div>
+                <p className="text-[11px] text-gray-300">
+                  Prove eligibility via reusable certified turnover tier and compliance status without re-submitting financial statements or exposing raw turnover.
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-gray-300 bg-gray-950/80 p-2.5 rounded border border-gray-800">
+                  <div>
+                    <span className="text-gray-500 block text-[10px]">Certified Turnover Tier:</span>
+                    <span className="text-emerald-300 font-bold">≥ $15,000,000 USD</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block text-[10px]">Certified Experience:</span>
+                    <span className="text-indigo-300 font-bold">≥ 7 Years</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Your Annual Turnover ($ USD)</label>
+                  <input
+                    type="number"
+                    value={turnoverUsd}
+                    onChange={(e) => setTurnoverUsd(Number(e.target.value))}
+                    className="w-[#100%] rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Your Operating Experience (Years)</label>
+                  <input
+                    type="number"
+                    value={experienceYears}
+                    onChange={(e) => setExperienceYears(Number(e.target.value))}
+                    className="w-[#100%] rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="rounded-lg border border-red-500/30 bg-red-950/30 p-3 text-xs text-red-300 flex items-center space-x-2">
@@ -122,7 +198,8 @@ export function Stage1EligibilityCard({
               isLoading={isLoading}
               onClick={handleVerifyZK}
             >
-              <Fingerprint className="h-4 w-4 mr-2" /> Submit Anonymous ZK Eligibility Proof
+              <Fingerprint className="h-4 w-4 mr-2" />
+              {usePassport ? "Prove Fact via Reusable Credential" : "Submit Anonymous ZK Eligibility Proof"}
             </Button>
           </div>
         )}

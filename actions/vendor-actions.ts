@@ -99,3 +99,67 @@ export async function verifyVendorQualificationAction(
     },
   };
 }
+
+/**
+ * Server Action: Generates a Reusable Business Credential Passport ("RAW DATA != PROOF OF FACT").
+ * Certifies turnover tiers and accreditation commitments so vendors can reuse them across RFPs.
+ */
+export async function generateReusableCredentialPassportAction(
+  profile: VendorProfile,
+  vendorId: string,
+  walletAddress: string
+): Promise<{
+  success: boolean;
+  passport?: import("@/lib/types").ReusableBusinessCredentialPassport;
+  error?: string;
+}> {
+  try {
+    const storage = new EncryptedVendorStorage();
+    const passport = await storage.generateReusableCredentialPassport(
+      profile,
+      vendorId,
+      walletAddress
+    );
+
+    return {
+      success: true,
+      passport,
+    };
+  } catch (error) {
+    console.error("[vendor-actions] Failed to generate reusable credential passport:", error);
+    return { success: false, error: "Failed to generate reusable credential passport." };
+  }
+}
+
+/**
+ * Server Action: Generates a verifiable Zero-Knowledge Proof of Fact from a reusable credential passport.
+ */
+export async function verifyCredentialFactProofAction(
+  passport: import("@/lib/types").ReusableBusinessCredentialPassport,
+  requiredTurnoverUsd: number,
+  requiredExperienceYears: number,
+  requiredCertifications: string[] = []
+): Promise<{
+  success: boolean;
+  factProof?: import("@/lib/types").CredentialFactProof;
+  error?: string;
+}> {
+  try {
+    const storage = new EncryptedVendorStorage();
+    const factProof = await storage.generateCredentialFactProof(
+      passport,
+      requiredTurnoverUsd,
+      requiredExperienceYears,
+      requiredCertifications
+    );
+
+    return {
+      success: true,
+      factProof,
+    };
+  } catch (error) {
+    console.error("[vendor-actions] Failed to verify credential fact proof:", error);
+    return { success: false, error: "Failed to verify credential fact proof." };
+  }
+}
+

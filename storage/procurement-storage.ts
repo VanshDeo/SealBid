@@ -108,18 +108,71 @@ export class ProcurementStorage {
   /**
    * Saves a new procurement RFP.
    */
+  /**
+   * Saves a new procurement RFP or updates an existing one if rules are not locked.
+   * Enforces immutability: once bidding begins or rules are locked, rules cannot be silently altered.
+   */
   public static async saveProcurement(rfp: ProcurementRfp): Promise<boolean> {
     try {
+      const existing = this.getProcurementById(rfp.id);
+      if (existing && existing.isRulesLocked) {
+        const state = this.getProgressiveState(rfp.id);
+        const hasSubmissions =
+          state.stage1Eligibility.length > 0 ||
+          state.stage2Technical.length > 0 ||
+          state.stage3Commercial.length > 0;
+
+        if (hasSubmissions) {
+          // Verify critical rules are unchanged
+          const thresholdMatch =
+            existing.eligibilityThresholds.minTurnoverUsd === rfp.eligibilityThresholds.minTurnoverUsd &&
+            existing.eligibilityThresholds.minExperienceYears === rfp.eligibilityThresholds.minExperienceYears;
+          const criteriaMatch =
+            existing.evaluationCriteria.technicalScoreWeight === rfp.evaluationCriteria.technicalScoreWeight &&
+            existing.evaluationCriteria.financialPriceWeight === rfp.evaluationCriteria.financialPriceWeight;
+          const deadlineMatch =
+            existing.deadlines.biddingDeadline === rfp.deadlines.biddingDeadline;
+
+          if (!thresholdMatch || !criteriaMatch || !deadlineMatch) {
+            throw new Error(
+              "Tamper-Resistance Violation: Procurement tender rules, criteria, thresholds, and deadlines are permanently committed and cannot be altered once bidding has started."
+            );
+          }
+        }
+      }
+
       if (typeof window !== "undefined") {
-        const existing = this.getProcurements();
-        const updated = [rfp, ...existing.filter((p) => p.id !== rfp.id)];
+        const allProcurements = this.getProcurements();
+        const updated = [rfp, ...allProcurements.filter((p) => p.id !== rfp.id)];
         localStorage.setItem(STORAGE_KEYS.PROCUREMENT_RFPS, JSON.stringify(updated));
       }
       return true;
     } catch (err) {
       console.error("[ProcurementStorage] Error saving RFP:", err);
-      return false;
+      throw err;
     }
+  }
+
+  /**
+   * Immutably locks and seals tender procurement rules on ledger.
+   */
+  public static lockProcurementRules(procurementId: string): boolean {
+    const list = this.getProcurements();
+    const rfp = list.find((p) => p.id === procurementId);
+    if (!rfp) return false;
+
+    rfp.isRulesLocked = true;
+    rfp.lockedAt = new Date().toISOString();
+    if (rfp.compactRules) {
+      rfp.compactRules.isRulesLocked = true;
+      rfp.compactRules.lockedAt = rfp.lockedAt;
+    }
+
+    if (typeof window !== "undefined") {
+      const updated = [rfp, ...list.filter((p) => p.id !== procurementId)];
+      localStorage.setItem(STORAGE_KEYS.PROCUREMENT_RFPS, JSON.stringify(updated));
+    }
+    return true;
   }
 
   /**
@@ -325,6 +378,16 @@ export class ProcurementStorage {
     legalReveal: Stage4LegalReveal
   ): ProgressiveProcurementState {
     const state = this.getProgressiveState(procurementId);
+    if (!state.winningAnonymousBidderId) {
+      throw new Error(
+        "Unauthorized Disclosure Violation: Stage 4 legal reveal cannot occur before Stage 3 winner has been legitimately awarded."
+      );
+    }
+    if (state.winningAnonymousBidderId !== legalReveal.winningAnonymousBidderId) {
+      throw new Error(
+        "Unauthorized Disclosure Violation: Only the verified winning bidder's legal documentation can be selectively revealed. Revealing non-winning vendor data is strictly forbidden."
+      );
+    }
     const updatedState: ProgressiveProcurementState = {
       ...state,
       stage4LegalReveal: legalReveal,
