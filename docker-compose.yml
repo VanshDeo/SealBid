@@ -1,0 +1,21 @@
+services:
+  proof-server:
+    image: midnightnetwork/proof-server:latest
+    container_name: sealbid-proof-server
+    restart: unless-stopped
+    ports:
+      - "6300:6300"
+    environment:
+      - RUST_LOG=info
+    volumes:
+      - proof-server-params:/root/.local/share/midnight
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:6300/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  proof-server-params:
+    name: sealbid-proof-server-params
