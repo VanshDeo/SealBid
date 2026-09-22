@@ -8,7 +8,7 @@ import { MidnightServicesProvider } from "./MidnightServicesProvider";
 
 interface MidnightContextType {
   wallet: WalletState;
-  connectWallet: () => Promise<void>;
+  connectWallet: (forceSimulated?: boolean) => Promise<void>;
   disconnectWallet: () => Promise<void>;
   isNetworkReady: boolean;
 }
@@ -42,10 +42,10 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     initMidnight();
   }, []);
 
-  const connectWallet = async () => {
+  const connectWallet = async (forceSimulated = false) => {
     setWallet((prev) => ({ ...prev, isConnecting: true, error: null }));
     try {
-      const res = await midnightWalletAdapter.connect();
+      const res = await midnightWalletAdapter.connect(forceSimulated);
 
       setWallet({
         isConnected: true,

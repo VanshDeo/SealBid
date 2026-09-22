@@ -10,7 +10,7 @@ export class MidnightWalletAdapter {
   public apiVersion = "1.0.0";
   private provider = new MidnightWalletProvider();
 
-  public async connect(): Promise<{
+  public async connect(forceSimulated = false): Promise<{
     address: string;
     coinPublicKey: string;
     balance: bigint;
@@ -19,7 +19,7 @@ export class MidnightWalletAdapter {
     console.log(
       "[MidnightWalletAdapter] Opening Midnight Lace Wallet Extension Connection Prompt..."
     );
-    const account = await this.provider.connect();
+    const account = await this.provider.connect(forceSimulated);
     return {
       address: account.address,
       coinPublicKey: account.coinPublicKey,

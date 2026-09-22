@@ -34,9 +34,16 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
             {error}
           </div>
         )}
-        <div className="mt-6 flex justify-center">
-          <Button variant="primary" onClick={connect} className="glow-primary px-8">
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button variant="primary" onClick={() => connect()} className="glow-primary px-8">
             Connect Lace Wallet
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => connect(true)}
+            className="border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10"
+          >
+            Use Midnight Sandbox Wallet
           </Button>
         </div>
       </div>

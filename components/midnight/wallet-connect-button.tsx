@@ -31,7 +31,7 @@ export function WalletConnectButton() {
         variant="primary"
         size="sm"
         isLoading={isConnecting}
-        onClick={connect}
+        onClick={() => connect()}
         className="gap-2"
       >
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,8 +46,14 @@ export function WalletConnectButton() {
       </Button>
 
       {error && (
-        <div className="mt-1 max-w-xs rounded-lg border border-red-500/30 bg-red-950/80 p-2 text-right text-xs text-red-300">
-          <span>{error}</span>
+        <div className="mt-1 max-w-xs rounded-lg border border-amber-500/30 bg-gray-900/95 p-2.5 text-right text-xs text-amber-200 shadow-xl">
+          <p className="text-left text-[11px] leading-relaxed text-gray-300">{error}</p>
+          <button
+            onClick={() => connect(true)}
+            className="mt-2 block w-full rounded bg-indigo-600 px-2 py-1 text-center font-medium text-white transition hover:bg-indigo-500"
+          >
+            Use Midnight Sandbox Wallet →
+          </button>
         </div>
       )}
     </div>

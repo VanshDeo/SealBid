@@ -99,9 +99,17 @@ export default function RegistrationPage() {
           SealBid relies on Midnight Lace Wallet signatures to verify identity and encrypt private
           business details off-chain.
         </p>
-        <div className="mt-8">
-          <Button size="lg" variant="primary" onClick={connect} className="glow-primary px-8">
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button size="lg" variant="primary" onClick={() => connect()} className="glow-primary px-8">
             Connect Lace Wallet
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => connect(true)}
+            className="border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10"
+          >
+            Use Midnight Sandbox Wallet
           </Button>
         </div>
       </div>
