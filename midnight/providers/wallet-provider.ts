@@ -2,6 +2,24 @@ import { IWalletProvider, WalletAccountState, DAppConnectorWalletAPI } from "../
 import { env } from "@/config/env";
 
 /**
+ * Subset of the Midnight DApp Connector v4 API (@midnight-ntwrk/dapp-connector-api) used here.
+ */
+interface DAppConnectorV4API {
+  getShieldedAddresses: () => Promise<{
+    shieldedAddress: string;
+    shieldedCoinPublicKey: string;
+    shieldedEncryptionPublicKey: string;
+  }>;
+  getConfiguration: () => Promise<{ networkId: string }>;
+}
+
+interface InjectedConnector {
+  apiVersion?: string;
+  enable?: () => Promise<DAppConnectorWalletAPI>;
+  connect?: (networkId: string) => Promise<DAppConnectorV4API>;
+}
+
+/**
  * Concrete Implementation of IWalletProvider for Midnight Lace Extension
  * Integrates directly with window.midnight.mnLace and window.midnight.lace DApp Connectors.
  */
@@ -15,14 +33,15 @@ export class MidnightWalletProvider implements IWalletProvider {
   }
 
   /**
-   * Discovers and returns the injected Lace extension connector if present.
+   * Discovers and returns the injected Lace extension connector if present,
+   * otherwise any other Midnight wallet implementing the DApp Connector v4 API (e.g. 1AM).
    */
-  private getInjectedConnector() {
+  private getInjectedConnector(): InjectedConnector | null {
     if (typeof window === "undefined") return null;
 
     const win = window as unknown as {
-      midnight?: Record<string, { enable: () => Promise<DAppConnectorWalletAPI> }>;
-      cardano?: Record<string, { enable: () => Promise<DAppConnectorWalletAPI> }>;
+      midnight?: Record<string, InjectedConnector>;
+      cardano?: Record<string, InjectedConnector>;
     };
 
     // 1. Prefer genuine Midnight Lace injected extension
@@ -41,6 +60,17 @@ export class MidnightWalletProvider implements IWalletProvider {
       return win.cardano.mnLace;
     }
 
+    // 3. Any other Midnight wallet exposing the DApp Connector v4 API
+    const v4Wallet = Object.values(win.midnight ?? {}).find(
+      (w) =>
+        typeof w?.apiVersion === "string" &&
+        w.apiVersion.startsWith("4") &&
+        typeof w.connect === "function"
+    );
+    if (v4Wallet) {
+      return v4Wallet;
+    }
+
     // Note: Standard win.cardano.lace is pure Cardano ADA (CIP-30), which does not support
     // Midnight state() and will throw 'Cardano wallet API is not available' if DApp connector is disabled.
     return null;
@@ -54,6 +84,38 @@ export class MidnightWalletProvider implements IWalletProvider {
 
       if (connector) {
         try {
+          const isV4 = String(connector.apiVersion).startsWith("4");
+          if (isV4 && typeof connector.connect === "function") {
+            // Midnight DApp Connector v4 API
+            const networkId: string = env.NEXT_PUBLIC_MIDNIGHT_NETWORK_ID || "preview";
+            // DApp Connector network ids are mainnet/preprod/preview/undeployed;
+            // the app's local "undeployed-testnet" is the connector's "undeployed".
+            const connectorNetworkId =
+              networkId === "undeployed-testnet" ? "undeployed" : networkId;
+            const v4Api = await connector.connect(connectorNetworkId);
+            const addresses = await v4Api.getShieldedAddresses();
+            const config = await v4Api.getConfiguration();
+
+            const account: WalletAccountState = {
+              address: addresses.shieldedAddress,
+              coinPublicKey: addresses.shieldedCoinPublicKey,
+              encryptionPublicKey: addresses.shieldedEncryptionPublicKey,
+              balance: 100000000000n,
+              networkId: config.networkId || networkId,
+            };
+
+            this.connectedAccount = account;
+            console.log(
+              "[MidnightWalletProvider] Connected to Midnight wallet (DApp Connector v4):",
+              account
+            );
+            return account;
+          }
+
+          if (typeof connector.enable !== "function") {
+            throw new Error("Wallet does not support enable()");
+          }
+
           // Attempt real Midnight Lace extension popup authorization
           const api = await connector.enable();
           this.walletAPI = api;
@@ -170,7 +232,7 @@ export class MidnightWalletProvider implements IWalletProvider {
     }
 
     const connector = this.getInjectedConnector();
-    if (connector) {
+    if (connector && typeof connector.enable === "function") {
       try {
         const api = await connector.enable();
         if (typeof api.submitTx === "function") {
